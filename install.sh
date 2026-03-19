@@ -6,7 +6,7 @@ CONFIG_DIR="$HOME/.config"
 
 # --- Списки пакетов ---
 PKG_MINIMAL=("git" "curl" "htop" "zsh" "networkmanager" "base-devel" "fastfetch")
-PKG_EXTENDED=("firefox" "dolphin" "hyprland" "waybar" "kitty" "hyprlock" "greetd" "greetd-tuigreet" "python" "rofi" "ttf-jetbrains-mono-nerd" "code" "telegram-desktop" "qemu-full" "virt-manager" "libvirt" "dnsmasq" "iptables-nft")
+PKG_EXTENDED=("firefox" "dolphin" "hyprland" "waybar" "kitty" "hyprlock" "greetd" "greetd-tuigreet" "python" "rofi" "ttf-jetbrains-mono-nerd" "code" "telegram-desktop" "qemu-full" "virt-manager" "libvirt" "dnsmasq")
 PKG_AUR_EXTENDED=("hyprshot")
 
 CONFIG_FOLDERS=("hypr" "hyprland" "kitty" "waybar" "gtk-3.0" "Kvantum" "autostart" "dconf" "yay" "rofi")
