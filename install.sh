@@ -4,11 +4,11 @@ DOTFILES_DIR="$HOME/dotfiles"
 CONFIG_DIR="$HOME/.config"
 
 # --- Списки пакетов ---
-PKG_MINIMAL=("git" "curl" "htop" "zsh" "networkmanager" "base-devel")
-PKG_EXTENDED=("firefox" "dolphin" "hyprland" "waybar" "kitty" "hyprlock" "greetd" "greetd-tuigreet" "python")
+PKG_MINIMAL=("git" "curl" "htop" "zsh" "networkmanager" "base-devel" "fastfetch")
+PKG_EXTENDED=("firefox" "dolphin" "hyprland" "waybar" "kitty" "hyprlock" "greetd" "greetd-tuigreet" "python" "rofi" "ttf-jetbrains-mono-nerd")
 PKG_AUR_EXTENDED=("hyprshot")
 
-CONFIG_FOLDERS=("hypr" "hyprland" "kitty" "waybar" "gtk-3.0" "Kvantum" "autostart" "dconf" "yay")
+CONFIG_FOLDERS=("hypr" "hyprland" "kitty" "waybar" "gtk-3.0" "Kvantum" "autostart" "dconf" "yay" "rofi")
 CONFIG_FILES=("arkrc" "dolphinrc" "kdeglobals" "kiorc" "ktrashrc" "QtProject.conf" "trashrc")
 
 # --- Функция установки ---
@@ -35,8 +35,8 @@ install_packages() {
 
 # 1. Выбор типа установки
 echo "Выберите тип установки:"
-echo "1) Минимальная (база + Zsh + NetworkManager)"
-echo "2) Расширенная (база + Hyprland, AUR, Greetd, Hyprlock, VENV, GUI-утилиты)"
+echo "1) Минимальная (база + Zsh + NetworkManager + Fastfetch)"
+echo "2) Расширенная (база + GUI, Rofi, Greetd, Шрифты)"
 read -p "Ваш выбор (1 или 2): " install_type
 
 if [[ "$install_type" == "1" ]]; then
@@ -70,7 +70,13 @@ if [[ "$install_type" == "2" ]]; then
     echo "Установка пакетов из AUR..."
     yay -S --needed --noconfirm "${PKG_AUR_EXTENDED[@]}"
 
-    # Активация и настройка greetd
+    # Замена SDDM на Greetd
+    if pacman -Qq sddm &> /dev/null; then
+        echo "Удаление SDDM..."
+        sudo systemctl disable sddm.service 2>/dev/null
+        sudo pacman -Rns --noconfirm sddm
+    fi
+
     if [ -f "$DOTFILES_DIR/etc/greetd/config.toml" ]; then
         echo "Настройка Greetd..."
         sudo mkdir -p /etc/greetd
@@ -88,14 +94,34 @@ if [[ "$install_type" == "2" ]]; then
     mkdir -p "$CONFIG_DIR/hypr"
     if [ ! -f "$DOTFILES_DIR/.config/hypr/hyprlock.conf" ]; then
         touch "$CONFIG_DIR/hypr/hyprlock.conf"
-        echo "Создан пустой файл настроек: $CONFIG_DIR/hypr/hyprlock.conf"
     fi
 fi
 
-# 4. Установка Oh My Zsh и Powerlevel10k
+# 4. Создание симлинков (до установки Zsh для предотвращения запуска мастера настройки)
+echo "Линковка дотфайлов..."
+mkdir -p "$CONFIG_DIR"
+
+for folder in "${CONFIG_FOLDERS[@]}"; do
+    if [ -d "$DOTFILES_DIR/.config/$folder" ]; then
+        rm -rf "$CONFIG_DIR/$folder"
+        ln -sfn "$DOTFILES_DIR/.config/$folder" "$CONFIG_DIR/$folder"
+    fi
+done
+
+for file in "${CONFIG_FILES[@]}"; do
+    if [ -f "$DOTFILES_DIR/.config/$file" ]; then
+        rm -f "$CONFIG_DIR/$file"
+        ln -sf "$DOTFILES_DIR/.config/$file" "$CONFIG_DIR/$file"
+    fi
+done
+
+[ -f "$DOTFILES_DIR/.zshrc" ] && rm -f "$HOME/.zshrc" && ln -sf "$DOTFILES_DIR/.zshrc" "$HOME/.zshrc"
+[ -f "$DOTFILES_DIR/.p10k.zsh" ] && rm -f "$HOME/.p10k.zsh" && ln -sf "$DOTFILES_DIR/.p10k.zsh" "$HOME/.p10k.zsh"
+
+# 5. Установка Oh My Zsh и Powerlevel10k
 if [ ! -d "$HOME/.oh-my-zsh" ]; then
     echo "Установка Oh My Zsh..."
-    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+    RUNZSH=no sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
 fi
 
 P10K_DIR="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k"
@@ -108,28 +134,5 @@ if [ "$SHELL" != "/usr/bin/zsh" ]; then
     echo "Смена оболочки на Zsh..."
     chsh -s /usr/bin/zsh
 fi
-
-# 5. Создание симлинков
-echo "Линковка дотфайлов..."
-mkdir -p "$CONFIG_DIR"
-
-for folder in "${CONFIG_FOLDERS[@]}"; do
-    if [ -d "$DOTFILES_DIR/.config/$folder" ]; then
-        rm -rf "$CONFIG_DIR/$folder"
-        ln -sfn "$DOTFILES_DIR/.config/$folder" "$CONFIG_DIR/$folder"
-        echo "  Связана директория: $folder"
-    fi
-done
-
-for file in "${CONFIG_FILES[@]}"; do
-    if [ -f "$DOTFILES_DIR/.config/$file" ]; then
-        rm -f "$CONFIG_DIR/$file"
-        ln -sf "$DOTFILES_DIR/.config/$file" "$CONFIG_DIR/$file"
-        echo "  Связан файл: $file"
-    fi
-done
-
-[ -f "$DOTFILES_DIR/.zshrc" ] && rm -f "$HOME/.zshrc" && ln -sf "$DOTFILES_DIR/.zshrc" "$HOME/.zshrc" && echo "  Связан файл: .zshrc"
-[ -f "$DOTFILES_DIR/.p10k.zsh" ] && rm -f "$HOME/.p10k.zsh" && ln -sf "$DOTFILES_DIR/.p10k.zsh" "$HOME/.p10k.zsh" && echo "  Связан файл: .p10k.zsh"
 
 echo "Установка завершена. Перезагрузите систему."
