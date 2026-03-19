@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Прерывать скрипт при критических ошибках
+set -e
+
 DOTFILES_DIR="$HOME/dotfiles"
 CONFIG_DIR="$HOME/.config"
 
@@ -62,7 +65,7 @@ if [[ "$install_type" == "2" ]]; then
     if ! command -v yay &> /dev/null; then
         echo "Установка yay..."
         git clone https://aur.archlinux.org/yay.git /tmp/yay
-        cd /tmp/yay && makepkg -si --noconfirm
+        (cd /tmp/yay && makepkg -si --noconfirm)
         rm -rf /tmp/yay
     fi
 
@@ -73,7 +76,7 @@ if [[ "$install_type" == "2" ]]; then
     # Замена SDDM на Greetd
     if pacman -Qq sddm &> /dev/null; then
         echo "Удаление SDDM..."
-        sudo systemctl disable sddm.service 2>/dev/null
+        sudo systemctl disable sddm.service 2>/dev/null || true
         sudo pacman -Rns --noconfirm sddm
     fi
 
@@ -97,7 +100,21 @@ if [[ "$install_type" == "2" ]]; then
     fi
 fi
 
-# 4. Создание симлинков (до установки Zsh для предотвращения запуска мастера настройки)
+# 4. Установка Oh My Zsh и Powerlevel10k (ДО симлинков)
+# Отключаем смену shell и автозапуск в установщике OMZ
+if [ ! -d "$HOME/.oh-my-zsh" ]; then
+    echo "Установка Oh My Zsh..."
+    RUNZSH=no CHSH=no sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+fi
+
+# Явно указываем путь установки без зависимости от $ZSH_CUSTOM
+P10K_DIR="$HOME/.oh-my-zsh/custom/themes/powerlevel10k"
+if [ ! -d "$P10K_DIR" ]; then
+    echo "Клонирование Powerlevel10k..."
+    git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "$P10K_DIR"
+fi
+
+# 5. Создание симлинков
 echo "Линковка дотфайлов..."
 mkdir -p "$CONFIG_DIR"
 
@@ -115,24 +132,21 @@ for file in "${CONFIG_FILES[@]}"; do
     fi
 done
 
-[ -f "$DOTFILES_DIR/.zshrc" ] && rm -f "$HOME/.zshrc" && ln -sf "$DOTFILES_DIR/.zshrc" "$HOME/.zshrc"
-[ -f "$DOTFILES_DIR/.p10k.zsh" ] && rm -f "$HOME/.p10k.zsh" && ln -sf "$DOTFILES_DIR/.p10k.zsh" "$HOME/.p10k.zsh"
+# Принудительно удаляем дефолтные файлы от установщика OMZ и ставим свои симлинки
+echo "Настройка конфигурации Zsh..."
+rm -f "$HOME/.zshrc" "$HOME/.p10k.zsh"
+[ -f "$DOTFILES_DIR/.zshrc" ] && ln -sf "$DOTFILES_DIR/.zshrc" "$HOME/.zshrc"
+[ -f "$DOTFILES_DIR/.p10k.zsh" ] && ln -sf "$DOTFILES_DIR/.p10k.zsh" "$HOME/.p10k.zsh"
 
-# 5. Установка Oh My Zsh и Powerlevel10k
-if [ ! -d "$HOME/.oh-my-zsh" ]; then
-    echo "Установка Oh My Zsh..."
-    RUNZSH=no sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
-fi
-
-P10K_DIR="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k"
-if [ ! -d "$P10K_DIR" ]; then
-    echo "Клонирование Powerlevel10k..."
-    git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "$P10K_DIR"
-fi
-
+# 6. Смена оболочки на Zsh
 if [ "$SHELL" != "/usr/bin/zsh" ]; then
-    echo "Смена оболочки на Zsh..."
-    chsh -s /usr/bin/zsh
+    echo "Смена оболочки по умолчанию на Zsh..."
+    # Проверка наличия Zsh в /etc/shells перед сменой
+    if grep -q "^/usr/bin/zsh$" /etc/shells; then
+        chsh -s /usr/bin/zsh
+    else
+        echo "Внимание: /usr/bin/zsh не найден в /etc/shells. Смена оболочки пропущена."
+    fi
 fi
 
 echo "Установка завершена. Перезагрузите систему."
