@@ -4,8 +4,9 @@ DOTFILES_DIR="$HOME/dotfiles"
 CONFIG_DIR="$HOME/.config"
 
 # --- Списки пакетов ---
-PKG_MINIMAL=("git" "curl" "htop" "zsh" "networkmanager")
-PKG_EXTENDED=("firefox" "dolphin" "hyprland" "hyprshot" "waybar" "kitty" "hyprlock" "greetd" "greetd-tuigreet" "python")
+PKG_MINIMAL=("git" "curl" "htop" "zsh" "networkmanager" "base-devel")
+PKG_EXTENDED=("firefox" "dolphin" "hyprland" "waybar" "kitty" "hyprlock" "greetd" "greetd-tuigreet" "python")
+PKG_AUR_EXTENDED=("hyprshot")
 
 CONFIG_FOLDERS=("hypr" "hyprland" "kitty" "waybar" "gtk-3.0" "Kvantum" "autostart" "dconf" "yay")
 CONFIG_FILES=("arkrc" "dolphinrc" "kdeglobals" "kiorc" "ktrashrc" "QtProject.conf" "trashrc")
@@ -26,7 +27,7 @@ install_packages() {
 
     if [ ${#missing_pkgs[@]} -gt 0 ]; then
         echo "  [УСТАНОВКА] ${missing_pkgs[*]}"
-        sudo pacman -S --noconfirm "${missing_pkgs[@]}"
+        sudo pacman -S --needed --noconfirm "${missing_pkgs[@]}"
     else
         echo "  Все необходимые пакеты уже установлены."
     fi
@@ -35,7 +36,7 @@ install_packages() {
 # 1. Выбор типа установки
 echo "Выберите тип установки:"
 echo "1) Минимальная (база + Zsh + NetworkManager)"
-echo "2) Расширенная (база + Hyprland, Greetd, Hyprlock, VENV, GUI-утилиты)"
+echo "2) Расширенная (база + Hyprland, AUR, Greetd, Hyprlock, VENV, GUI-утилиты)"
 read -p "Ваш выбор (1 или 2): " install_type
 
 if [[ "$install_type" == "1" ]]; then
@@ -47,16 +48,34 @@ else
     exit 1
 fi
 
-# 2. Установка пакетов
+# 2. Обновление системы и установка пакетов pacman
+echo "Обновление системы..."
 sudo pacman -Syu --noconfirm
 install_packages "${PACKAGES[@]}"
 
-# Включение основных системных служб
-sudo systemctl enable --now NetworkManager.service
+sudo systemctl enable NetworkManager.service
 
-# 3. Настройка расширенных компонентов (если выбран вариант 2)
+# 3. Настройка расширенных компонентов
 if [[ "$install_type" == "2" ]]; then
-    # Активация greetd
+    
+    # Установка yay (AUR helper)
+    if ! command -v yay &> /dev/null; then
+        echo "Установка yay..."
+        git clone https://aur.archlinux.org/yay.git /tmp/yay
+        cd /tmp/yay && makepkg -si --noconfirm
+        rm -rf /tmp/yay
+    fi
+
+    # Установка AUR пакетов
+    echo "Установка пакетов из AUR..."
+    yay -S --needed --noconfirm "${PKG_AUR_EXTENDED[@]}"
+
+    # Активация и настройка greetd
+    if [ -f "$DOTFILES_DIR/etc/greetd/config.toml" ]; then
+        echo "Настройка Greetd..."
+        sudo mkdir -p /etc/greetd
+        sudo cp "$DOTFILES_DIR/etc/greetd/config.toml" /etc/greetd/config.toml
+    fi
     sudo systemctl enable greetd.service
 
     # Создание Python VENV
@@ -65,7 +84,7 @@ if [[ "$install_type" == "2" ]]; then
         python -m venv "$HOME/.venv"
     fi
 
-    # Заглушка для hyprlock (если еще не добавлен в dotfiles)
+    # Заглушка для hyprlock
     mkdir -p "$CONFIG_DIR/hypr"
     if [ ! -f "$DOTFILES_DIR/.config/hypr/hyprlock.conf" ]; then
         touch "$CONFIG_DIR/hypr/hyprlock.conf"
@@ -73,13 +92,20 @@ if [[ "$install_type" == "2" ]]; then
     fi
 fi
 
-# 4. Установка Oh My Zsh
+# 4. Установка Oh My Zsh и Powerlevel10k
 if [ ! -d "$HOME/.oh-my-zsh" ]; then
     echo "Установка Oh My Zsh..."
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
 fi
 
+P10K_DIR="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k"
+if [ ! -d "$P10K_DIR" ]; then
+    echo "Клонирование Powerlevel10k..."
+    git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "$P10K_DIR"
+fi
+
 if [ "$SHELL" != "/usr/bin/zsh" ]; then
+    echo "Смена оболочки на Zsh..."
     chsh -s /usr/bin/zsh
 fi
 
@@ -103,7 +129,7 @@ for file in "${CONFIG_FILES[@]}"; do
     fi
 done
 
-rm -f "$HOME/.zshrc"
-ln -sf "$DOTFILES_DIR/.zshrc" "$HOME/.zshrc"
+[ -f "$DOTFILES_DIR/.zshrc" ] && rm -f "$HOME/.zshrc" && ln -sf "$DOTFILES_DIR/.zshrc" "$HOME/.zshrc" && echo "  Связан файл: .zshrc"
+[ -f "$DOTFILES_DIR/.p10k.zsh" ] && rm -f "$HOME/.p10k.zsh" && ln -sf "$DOTFILES_DIR/.p10k.zsh" "$HOME/.p10k.zsh" && echo "  Связан файл: .p10k.zsh"
 
-echo "Установка завершена. Рекомендуется перезагрузить систему."
+echo "Установка завершена. Перезагрузите систему."
