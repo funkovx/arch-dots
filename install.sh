@@ -1,6 +1,4 @@
 #!/bin/bash
-
-# Прерывать скрипт при критических ошибках
 set -e
 
 DOTFILES_DIR="$HOME/dotfiles"
@@ -8,7 +6,7 @@ CONFIG_DIR="$HOME/.config"
 
 # --- Списки пакетов ---
 PKG_MINIMAL=("git" "curl" "htop" "zsh" "networkmanager" "base-devel" "fastfetch")
-PKG_EXTENDED=("firefox" "dolphin" "hyprland" "waybar" "kitty" "hyprlock" "greetd" "greetd-tuigreet" "python" "rofi" "ttf-jetbrains-mono-nerd")
+PKG_EXTENDED=("firefox" "dolphin" "hyprland" "waybar" "kitty" "hyprlock" "greetd" "greetd-tuigreet" "python" "rofi" "ttf-jetbrains-mono-nerd" "code" "telegram-desktop" "qemu-full" "virt-manager" "libvirt" "dnsmasq" "iptables-nft")
 PKG_AUR_EXTENDED=("hyprshot")
 
 CONFIG_FOLDERS=("hypr" "hyprland" "kitty" "waybar" "gtk-3.0" "Kvantum" "autostart" "dconf" "yay" "rofi")
@@ -39,7 +37,7 @@ install_packages() {
 # 1. Выбор типа установки
 echo "Выберите тип установки:"
 echo "1) Минимальная (база + Zsh + NetworkManager + Fastfetch)"
-echo "2) Расширенная (база + GUI, Rofi, Greetd, Шрифты)"
+echo "2) Расширенная (база + GUI, Rofi, Greetd, Шрифты, VSCode, KVM, Telegram)"
 read -p "Ваш выбор (1 или 2): " install_type
 
 if [[ "$install_type" == "1" ]]; then
@@ -61,7 +59,7 @@ sudo systemctl enable NetworkManager.service
 # 3. Настройка расширенных компонентов
 if [[ "$install_type" == "2" ]]; then
     
-    # Установка yay (AUR helper)
+    # Установка yay
     if ! command -v yay &> /dev/null; then
         echo "Установка yay..."
         git clone https://aur.archlinux.org/yay.git /tmp/yay
@@ -72,6 +70,11 @@ if [[ "$install_type" == "2" ]]; then
     # Установка AUR пакетов
     echo "Установка пакетов из AUR..."
     yay -S --needed --noconfirm "${PKG_AUR_EXTENDED[@]}"
+
+    # Активация службы виртуализации (KVM) и добавление пользователя в группу
+    echo "Настройка QEMU/KVM..."
+    sudo systemctl enable libvirtd.service
+    sudo usermod -aG libvirt "$USER"
 
     # Замена SDDM на Greetd
     if pacman -Qq sddm &> /dev/null; then
@@ -100,14 +103,12 @@ if [[ "$install_type" == "2" ]]; then
     fi
 fi
 
-# 4. Установка Oh My Zsh и Powerlevel10k (ДО симлинков)
-# Отключаем смену shell и автозапуск в установщике OMZ
+# 4. Установка Oh My Zsh и Powerlevel10k
 if [ ! -d "$HOME/.oh-my-zsh" ]; then
     echo "Установка Oh My Zsh..."
     RUNZSH=no CHSH=no sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
 fi
 
-# Явно указываем путь установки без зависимости от $ZSH_CUSTOM
 P10K_DIR="$HOME/.oh-my-zsh/custom/themes/powerlevel10k"
 if [ ! -d "$P10K_DIR" ]; then
     echo "Клонирование Powerlevel10k..."
@@ -132,16 +133,14 @@ for file in "${CONFIG_FILES[@]}"; do
     fi
 done
 
-# Принудительно удаляем дефолтные файлы от установщика OMZ и ставим свои симлинки
 echo "Настройка конфигурации Zsh..."
 rm -f "$HOME/.zshrc" "$HOME/.p10k.zsh"
 [ -f "$DOTFILES_DIR/.zshrc" ] && ln -sf "$DOTFILES_DIR/.zshrc" "$HOME/.zshrc"
 [ -f "$DOTFILES_DIR/.p10k.zsh" ] && ln -sf "$DOTFILES_DIR/.p10k.zsh" "$HOME/.p10k.zsh"
 
-# 6. Смена оболочки на Zsh
+# 6. Смена оболочки
 if [ "$SHELL" != "/usr/bin/zsh" ]; then
     echo "Смена оболочки по умолчанию на Zsh..."
-    # Проверка наличия Zsh в /etc/shells перед сменой
     if grep -q "^/usr/bin/zsh$" /etc/shells; then
         chsh -s /usr/bin/zsh
     else
@@ -149,4 +148,15 @@ if [ "$SHELL" != "/usr/bin/zsh" ]; then
     fi
 fi
 
-echo "Установка завершена. Перезагрузите систему."
+# 7. Подготовка автозапуска терминала для настройки Powerlevel10k
+if [[ "$install_type" == "2" ]]; then
+    HYPR_CONF="$CONFIG_DIR/hypr/hyprland.conf"
+    mkdir -p "$(dirname "$HYPR_CONF")"
+    
+    echo "exec-once = kitty -e zsh -c 'p10k configure; exec zsh' && sed -i '/# P10K_SETUP/d' $HYPR_CONF # P10K_SETUP" >> "$HYPR_CONF"
+fi
+
+# 8. Перезагрузка
+echo "Установка завершена. Система будет перезагружена через 5 секунд..."
+sleep 5
+sudo reboot
