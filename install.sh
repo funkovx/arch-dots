@@ -6,6 +6,7 @@ CONFIG_DIR="$HOME/.config"
 
 # --- Списки пакетов ---
 PKG_MINIMAL=("git" "curl" "htop" "zsh" "networkmanager" "base-devel" "fastfetch")
+# Удален iptables-nft для предотвращения конфликта со стандартным iptables
 PKG_EXTENDED=("firefox" "dolphin" "hyprland" "waybar" "kitty" "hyprlock" "greetd" "greetd-tuigreet" "python" "rofi" "ttf-jetbrains-mono-nerd" "code" "telegram-desktop" "qemu-full" "virt-manager" "libvirt" "dnsmasq")
 PKG_AUR_EXTENDED=("hyprshot")
 
@@ -115,7 +116,7 @@ if [ ! -d "$P10K_DIR" ]; then
     git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "$P10K_DIR"
 fi
 
-# 5. Создание симлинков
+# 5. Создание симлинков и настройка чистого Zsh
 echo "Линковка дотфайлов..."
 mkdir -p "$CONFIG_DIR"
 
@@ -133,10 +134,11 @@ for file in "${CONFIG_FILES[@]}"; do
     fi
 done
 
-echo "Настройка конфигурации Zsh..."
-rm -f "$HOME/.zshrc" "$HOME/.p10k.zsh"
-[ -f "$DOTFILES_DIR/.zshrc" ] && ln -sf "$DOTFILES_DIR/.zshrc" "$HOME/.zshrc"
-[ -f "$DOTFILES_DIR/.p10k.zsh" ] && ln -sf "$DOTFILES_DIR/.p10k.zsh" "$HOME/.p10k.zsh"
+echo "Подготовка чистого конфигурационного файла Zsh..."
+if [ ! -f "$HOME/.zshrc" ]; then
+    cp "$HOME/.oh-my-zsh/templates/zshrc.zsh-template" "$HOME/.zshrc"
+fi
+sed -i 's/^ZSH_THEME=.*/ZSH_THEME="powerlevel10k\/powerlevel10k"/' "$HOME/.zshrc"
 
 # 6. Смена оболочки
 if [ "$SHELL" != "/usr/bin/zsh" ]; then
