@@ -1,0 +1,44 @@
+{
+    "layer": "top",
+    "position": "top",
+    "height": 30,
+    "spacing": 4,
+    "modules-left": ["hyprland/workspaces"],
+    "modules-center": ["clock"],
+    "modules-right": ["network", "backlight", "battery"],
+
+    "hyprland/workspaces": {
+        "disable-scroll": true,
+        "all-outputs": true,
+        "format": "{name}"
+    },
+
+    "clock": {
+        "format": "{:%H:%M}",
+        "tooltip": false
+    },
+
+    "backlight": {
+        "format": "☀ {percent}%",
+        "on-scroll-up": "brightnessctl s +1%",
+        "on-scroll-down": "brightnessctl s 1%-"
+    },
+
+    "network": {
+        "format-wifi": " {essid} ({ipaddr})",
+        "format-ethernet": "󰈀 {ipaddr}",
+        "format-disconnected": "⚠ Disconnected",
+        "tooltip": false,
+        "on-click": "nmcli device wifi rescan && kitty --class 'network_menu' -e sh -c 'export NEWT_COLORS=\"root=black,black;window=gray,lightgray;textbox=gray,lightgray;button=black,lightgray;compactbutton=gray,lightgray;listbox=gray,lightgray;actlistbox=gray,lightgray;actsellistbox=lightgray,black;entry=gray,lightgray;checkbox=gray,lightgray;actcheckbox=lightgray,black\" && nmtui connect'"
+    },
+
+    "battery": {
+        "states": {
+            "warning": 30,
+            "critical": 15
+        },
+        "format": "{icon} {capacity}%",
+        "format-charging": "󱐋 {capacity}%",
+        "format-icons": ["", "", "", "", ""]
+    }
+}

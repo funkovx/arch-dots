@@ -1,0 +1,10 @@
+[Colors:View]
+BackgroundNormal=30,30,30
+ForegroundNormal=255,255,255
+
+[Colors:Window]
+BackgroundNormal=30,30,30
+ForegroundNormal=255,255,255
+
+[General]
+ColorScheme=Kvantum
