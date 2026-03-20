@@ -26,3 +26,12 @@ Install dotfiles using shell script.
 ```bash
 ./install.sh
 ```
+## Screenshots
+
+![Fastfetch](1.png)
+
+![Throne](2.png)
+
+![Nmtui](3.png)
+
+![Clipboard](4.png)
