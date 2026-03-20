@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-DOTFILES_DIR="$HOME/dotfiles"
+DOTFILES_DIR="$HOME/.dotfiles"
 CONFIG_DIR="$HOME/.config"
 
 # --- Списки пакетов ---
