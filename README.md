@@ -28,10 +28,14 @@ Install dotfiles using shell script.
 ```
 ## Screenshots
 
+Fastfetch
 ![Fastfetch](1.png)
 
+Throne (need to install with yay after reboot)
 ![Throne](2.png)
 
+Nmtui
 ![Nmtui](3.png)
 
+Clipboard
 ![Clipboard](4.png)
