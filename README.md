@@ -1,7 +1,7 @@
 # arch-dots
 ## 1. Generate SSH Key
 ```bash
-ssh-keygen -t ed25519 -C "your_email@example.com"
+ssh-keygen -t ed25519 -C "you@example.com"
 ```
 
 Press Enter to save the key in the default location.
