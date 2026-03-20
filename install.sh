@@ -88,6 +88,7 @@ if [[ "$install_type" == "2" ]]; then
         sudo mkdir -p /etc/greetd
         sudo cp "$DOTFILES_DIR/etc/greetd/config.toml" /etc/greetd/config.toml
     fi
+    sudo chown -R greeter:greeter /etc/greetd
     sudo systemctl enable greetd.service
 
     # Создание Python VENV
