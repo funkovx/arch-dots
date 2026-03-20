@@ -4,38 +4,46 @@ set -e
 DOTFILES_DIR="$HOME/.dotfiles"
 CONFIG_DIR="$HOME/.config"
 
-# Список папок для синхронизации (должен совпадать с основным скриптом)
-CONFIG_FOLDERS=("hypr" "hyprland" "kitty" "waybar" "rofi" "zathura")
-CONFIG_FILES=("mimeapps.list")
-
-echo "🔄 Обновление из GitHub..."
+echo " Обновление из GitHub..."
 cd "$DOTFILES_DIR"
 git pull origin main
 
-echo "🔗 Восстановление симлинков..."
-mkdir -p "$CONFIG_DIR"
+echo " Безопасная перелинковка..."
 
-# Линковка папок
-for folder in "${CONFIG_FOLDERS[@]}"; do
-    if [ -d "$DOTFILES_DIR/.config/$folder" ]; then
-        rm -rf "$CONFIG_DIR/$folder"
-        ln -sfn "$DOTFILES_DIR/.config/$folder" "$CONFIG_DIR/$folder"
-        echo "  Папка $folder синхронизирована"
-    fi
+# Функция для безопасного создания ссылок
+safe_link() {
+    local src=$1
+    local dest=$2
+    
+    # Создаем родительскую директорию, если её нет
+    mkdir -p "$(dirname "$dest")"
+    
+    # ln -sfn: 
+    # -s (symbolic)
+    # -f (force): перезапишет, если файл уже есть
+    # -n: если это ссылка на папку, заменит саму ссылку, а не создаст новую внутри
+    ln -sfn "$src" "$dest"
+    echo "   $dest -> $src"
+}
+
+# Линкуем папки из репозитория
+# Находим все папки внутри dotfiles/.config и зеркалим их в ~/.config
+find "$DOTFILES_DIR/.config" -maxdepth 1 -mindepth 1 -type d | while read -r folder; do
+    folder_name=$(basename "$folder")
+    safe_link "$folder" "$CONFIG_DIR/$folder_name"
 done
 
-# Линковка отдельных файлов
-for file in "${CONFIG_FILES[@]}"; do
-    if [ -f "$DOTFILES_DIR/.config/$file" ]; then
-        ln -sf "$DOTFILES_DIR/.config/$file" "$CONFIG_DIR/$file"
-        echo "  Файл $file синхронизирован"
-    fi
+# Линкуем отдельные файлы из .config (например, mimeapps.list)
+find "$DOTFILES_DIR/.config" -maxdepth 1 -type f | while read -r file; do
+    file_name=$(basename "$file")
+    safe_link "$file" "$CONFIG_DIR/$file_name"
 done
 
-# Обновление конфига Zsh (на случай правок в .zshrc)
+# Линкуем .zshrc
 if [ -f "$DOTFILES_DIR/.zshrc" ]; then
-    ln -sf "$DOTFILES_DIR/.zshrc" "$HOME/.zshrc"
-    echo "  .zshrc обновлен"
+    safe_link "$DOTFILES_DIR/.zshrc" "$HOME/.zshrc"
 fi
 
-echo " Конфигурация успешно восстановлена."
+echo " Синхронизация завершена!"
+# Мягко просим Hyprland перечитать конфиг без перезагрузки
+hyprctl reload
