@@ -6,7 +6,6 @@ CONFIG_DIR="$HOME/.config"
 
 # --- Списки пакетов ---
 PKG_MINIMAL=("git" "curl" "htop" "zsh" "networkmanager" "base-devel" "fastfetch")
-# Удален iptables-nft для предотвращения конфликта со стандартным iptables
 PKG_EXTENDED=("firefox" "dolphin" "hyprland" "waybar" "kitty" "hyprlock" "greetd" "greetd-tuigreet" "python" "rofi" "ttf-jetbrains-mono-nerd" "code" "telegram-desktop" "qemu-full" "virt-manager" "libvirt" "dnsmasq")
 PKG_AUR_EXTENDED=("hyprshot")
 
@@ -105,8 +104,9 @@ if [[ "$install_type" == "2" ]]; then
 fi
 
 # 4. Установка Oh My Zsh и Powerlevel10k
-if [ ! -d "$HOME/.oh-my-zsh" ]; then
+if [ ! -d "$HOME/.oh-my-zsh/templates" ]; then
     echo "Установка Oh My Zsh..."
+    rm -rf "$HOME/.oh-my-zsh" # Очистка битой установки
     RUNZSH=no CHSH=no sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
 fi
 
@@ -136,7 +136,12 @@ done
 
 echo "Подготовка чистого конфигурационного файла Zsh..."
 if [ ! -f "$HOME/.zshrc" ]; then
-    cp "$HOME/.oh-my-zsh/templates/zshrc.zsh-template" "$HOME/.zshrc"
+    if [ -f "$HOME/.oh-my-zsh/templates/zshrc.zsh-template" ]; then
+        cp "$HOME/.oh-my-zsh/templates/zshrc.zsh-template" "$HOME/.zshrc"
+    else
+        # Прямое скачивание шаблона с GitHub
+        curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/templates/zshrc.zsh-template -o "$HOME/.zshrc"
+    fi
 fi
 sed -i 's/^ZSH_THEME=.*/ZSH_THEME="powerlevel10k\/powerlevel10k"/' "$HOME/.zshrc"
 
