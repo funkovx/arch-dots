@@ -1,0 +1,8 @@
+
+[Default Applications]
+text/x-shellscript=code.desktop
+image/png=imv.desktop
+image/jpeg=imv.desktop
+image/gif=imv.desktop
+image/webp=imv.desktop
+application/pdf=zathura.desktop

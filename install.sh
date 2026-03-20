@@ -6,11 +6,11 @@ CONFIG_DIR="$HOME/.config"
 
 # --- Списки пакетов ---
 PKG_MINIMAL=("git" "curl" "htop" "zsh" "networkmanager" "base-devel" "fastfetch")
-PKG_EXTENDED=("firefox" "dolphin" "hyprland" "waybar" "kitty" "hyprlock" "greetd" "greetd-tuigreet" "python" "rofi" "ttf-jetbrains-mono-nerd" "code" "telegram-desktop" "qemu-full" "virt-manager" "libvirt" "dnsmasq" "kvantum" "qt5-wayland" "qt6-wayland" "hypridle" "xdg-utils")
+PKG_EXTENDED=("firefox" "dolphin" "hyprland" "waybar" "kitty" "hyprlock" "greetd" "greetd-tuigreet" "python" "rofi" "ttf-jetbrains-mono-nerd" "code" "telegram-desktop" "qemu-full" "virt-manager" "libvirt" "dnsmasq" "kvantum" "qt5-wayland" "qt6-wayland" "hypridle" "xdg-utils" "kde-cli-tools" "archlinux-xdg-menu" "imv" "zathura" "zathura-pdf-mupdf")
 PKG_AUR_EXTENDED=("hyprshot")
 
 CONFIG_FOLDERS=("hypr" "hyprland" "kitty" "waybar" "gtk-3.0" "Kvantum" "autostart" "dconf" "yay" "rofi")
-CONFIG_FILES=("arkrc" "dolphinrc" "kdeglobals" "kiorc" "ktrashrc" "QtProject.conf" "trashrc")
+CONFIG_FILES=("arkrc" "dolphinrc" "kdeglobals" "kiorc" "ktrashrc" "QtProject.conf" "trashrc" "mimeapps.list")
 
 # --- Функция установки ---
 install_packages() {
