@@ -26,16 +26,24 @@ Install dotfiles using shell script.
 ```bash
 ./install.sh
 ```
+
+## 4. Post inst
+Throne can be downloaded after rebooting.
+System can be restored and updated using:
+```bash
+./sync.sh
+```
+
 ## Screenshots
 
-Fastfetch
+**Fastfetch**
 ![Fastfetch](1.png)
 
-Throne (need to install with yay after reboot)
+**Throne** (need to install with yay after reboot)
 ![Throne](2.png)
 
-Nmtui
+**Nmtui**
 ![Nmtui](3.png)
 
-Clipboard
+**Clipboard**
 ![Clipboard](4.png)
