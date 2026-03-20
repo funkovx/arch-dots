@@ -156,15 +156,7 @@ if [ "$SHELL" != "/usr/bin/zsh" ]; then
     fi
 fi
 
-# 7. Подготовка автозапуска терминала для настройки Powerlevel10k
-if [[ "$install_type" == "2" ]]; then
-    HYPR_CONF="$CONFIG_DIR/hypr/hyprland.conf"
-    mkdir -p "$(dirname "$HYPR_CONF")"
-    
-    echo "exec-once = kitty -e zsh -c 'p10k configure; exec zsh' && sed -i '/# P10K_SETUP/d' $HYPR_CONF # P10K_SETUP" >> "$HYPR_CONF"
-fi
-
-# 8. Перезагрузка
+# 7. Перезагрузка
 echo "Установка завершена. Система будет перезагружена через 5 секунд..."
 sleep 5
 sudo reboot
