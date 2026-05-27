@@ -1,0 +1,108 @@
+// Gruvbox Material Dark — Rofi theme
+
+* {
+    bg:          #282828;
+    bg-alt:      #3c3836;
+    bg-sel:      #504945;
+    fg:          #ebdbb2;
+    fg-dim:      #928374;
+    accent:      #fabd2f;
+    urgent:      #fb4934;
+    green:       #b8bb26;
+
+    background-color: transparent;
+    text-color:       var(fg);
+}
+
+window {
+    background-color: var(bg);
+    border:           2px;
+    border-color:     var(accent);
+    border-radius:    12px;
+    width:            580px;
+    location:         center;
+    anchor:           center;
+    padding:          0;
+}
+
+mainbox {
+    background-color: transparent;
+    orientation:      vertical;
+    children:         [ inputbar, listview ];
+    spacing:          0;
+}
+
+inputbar {
+    background-color: var(bg);
+    border-radius:    12px 12px 0 0;
+    padding:          14px 16px;
+    spacing:          10px;
+    children:         [ prompt, entry ];
+}
+
+prompt {
+    background-color: transparent;
+    text-color:       var(accent);
+    font:             "JetBrainsMono Nerd Font 14";
+    vertical-align:   0.5;
+}
+
+entry {
+    background-color: transparent;
+    text-color:       var(fg);
+    font:             "JetBrainsMono Nerd Font 14";
+    cursor:           text;
+    placeholder:      "Search...";
+    placeholder-color: var(fg-dim);
+    vertical-align:   0.5;
+}
+
+listview {
+    background-color: var(bg-alt);
+    border-radius:    0 0 12px 12px;
+    padding:          8px;
+    spacing:          4px;
+    lines:            8;
+    columns:          1;
+    cycle:            true;
+    dynamic:          true;
+    scrollbar:        false;
+    fixed-height:     true;
+}
+
+element {
+    background-color: transparent;
+    text-color:       var(fg);
+    border-radius:    8px;
+    padding:          8px 12px;
+    spacing:          10px;
+    orientation:      horizontal;
+    children:         [ element-icon, element-text ];
+    cursor:           pointer;
+}
+
+element.normal.normal    { background-color: transparent;   text-color: var(fg);     }
+element.normal.urgent    { background-color: var(urgent);   text-color: var(bg);     }
+element.normal.active    { background-color: transparent;   text-color: var(accent); }
+element.selected.normal  { background-color: var(bg-sel);   text-color: var(fg);     }
+element.selected.urgent  { background-color: var(urgent);   text-color: var(bg);     }
+element.selected.active  { background-color: var(bg-sel);   text-color: var(accent); }
+element.alternate.normal { background-color: transparent;   text-color: var(fg);     }
+element.alternate.urgent { background-color: var(urgent);   text-color: var(bg);     }
+element.alternate.active { background-color: transparent;   text-color: var(accent); }
+
+element-icon {
+    background-color: transparent;
+    size:             28px;
+    vertical-align:   0.5;
+    horizontal-align: 0.5;
+}
+
+element-text {
+    background-color: transparent;
+    text-color:       inherit;
+    font:             "JetBrainsMono Nerd Font 13";
+    vertical-align:   0.5;
+    horizontal-align: 0.0;
+    highlight:        bold var(accent);
+}

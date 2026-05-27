@@ -1,48 +1,94 @@
 * {
     border: none;
     border-radius: 0;
-    font-family: "JetBrainsMono Nerd Font", Roboto, Helvetica, Arial, sans-serif;
+    font-family: "JetBrainsMono Nerd Font Mono", "JetBrainsMono Nerd Font", monospace;
     font-size: 13px;
     min-height: 0;
 }
 
 window#waybar {
-    background-color: #000000;
-    border-bottom: 1px solid #222222;
-    color: #ffffff;
-    transition-property: background-color;
-    transition-duration: .5s;
+    background-color: #0d0d0d;
+    border-bottom: 1px solid #1e1e1e;
+    color: #e0e0e0;
+}
+
+/* ── Workspaces ─────────────────────────────────────────── */
+
+#workspaces {
+    margin: 4px 4px 4px 8px;
+    padding: 0 4px;
+    background-color: #1a1a1a;
+    border-radius: 10px;
 }
 
 #workspaces button {
-    padding: 0 5px;
+    padding: 2px 10px;
+    color: #555555;
     background-color: transparent;
-    color: #ffffff;
+    border-radius: 8px;
+    transition: all 0.15s ease;
+}
+
+#workspaces button:hover {
+    background-color: #242424;
+    color: #cccccc;
 }
 
 #workspaces button.active {
-    background-color: #333333;
+    background-color: #2a2a2a;
+    color: #ffffff;
+    font-weight: bold;
     border-bottom: 2px solid #ffffff;
 }
 
-#clock,
-#network,
-#backlight,
-#battery {
-    padding: 0 10px;
+#workspaces button.urgent {
+    background-color: #3a1a1a;
     color: #ffffff;
 }
 
-#network {
-    background-color: #000000;
+/* ── Window title ───────────────────────────────────────── */
+
+#window {
+    padding: 0 12px;
+    color: #555555;
+    font-size: 12px;
 }
 
-#battery.warning {
-    color: #ffaa00;
+/* ── Shared pill style ──────────────────────────────────── */
+
+#clock,
+#cpu,
+#memory,
+#pulseaudio,
+#network,
+#backlight,
+#battery,
+#language,
+#custom-claude-limits {
+    padding: 2px 12px;
+    margin: 4px 2px;
+    border-radius: 10px;
+    background-color: #1a1a1a;
+    color: #cccccc;
+}
+
+/* ── Clock ──────────────────────────────────────────────── */
+
+#clock {
+    color: #ffffff;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+/* ── Battery ────────────────────────────────────────────── */
+
+#battery.warning:not(.charging) {
+    color: #aaaaaa;
 }
 
 #battery.critical:not(.charging) {
-    color: #f53c3c;
+    color: #ffffff;
+    background-color: #2a0a0a;
     animation-name: blink;
     animation-duration: 0.5s;
     animation-timing-function: linear;
@@ -50,9 +96,38 @@ window#waybar {
     animation-direction: alternate;
 }
 
+/* ── Claude limits ──────────────────────────────────────── */
+
+#custom-claude-limits.warning {
+    color: #aaaaaa;
+}
+
+#custom-claude-limits.critical {
+    color: #ffffff;
+    background-color: #2a1a0a;
+}
+
+#custom-claude-limits.error {
+    color: #666666;
+}
+
+/* ── Network disconnected ───────────────────────────────── */
+
+#network.disconnected {
+    color: #666666;
+}
+
+/* ── Audio muted ────────────────────────────────────────── */
+
+#pulseaudio.muted {
+    color: #444444;
+}
+
+/* ── Blink animation ────────────────────────────────────── */
+
 @keyframes blink {
     to {
-        background-color: #ffffff;
-        color: #000000;
+        background-color: #3a0a0a;
+        color: #ffffff;
     }
 }

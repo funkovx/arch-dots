@@ -1,0 +1,14 @@
+# KDE/KIO runtime files (can contain auth tokens and session data)
+.config/kioslaverc
+
+# Throne app data (local/private)
+.config/Throne/
+
+# Backup and temp files
+*.bak
+*.tmp
+*.swp
+*~
+
+# Claude widget secret (session key — never commit)
+.config/claude-limits-widget/

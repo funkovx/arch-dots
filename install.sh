@@ -4,159 +4,169 @@ set -e
 DOTFILES_DIR="$HOME/.dotfiles"
 CONFIG_DIR="$HOME/.config"
 
-# --- Списки пакетов ---
-PKG_MINIMAL=("git" "curl" "htop" "zsh" "networkmanager" "base-devel" "fastfetch")
-PKG_EXTENDED=("firefox" "dolphin" "hyprland" "waybar" "kitty" "hyprlock" "greetd" "greetd-tuigreet" "python" "rofi" "ttf-jetbrains-mono-nerd" "code" "telegram-desktop" "qemu-full" "virt-manager" "libvirt" "dnsmasq" "kvantum" "qt5-wayland" "qt6-wayland" "hypridle" "xdg-utils" "kde-cli-tools" "archlinux-xdg-menu" "imv" "zathura" "zathura-pdf-mupdf" "copyq")
-PKG_AUR_EXTENDED=("hyprshot")
+PKG_MINIMAL=(git curl htop zsh networkmanager base-devel fastfetch)
+PKG_EXTENDED=(
+    firefox dolphin hyprland waybar kitty hyprlock
+    greetd greetd-tuigreet python rofi ttf-jetbrains-mono-nerd
+    code telegram-desktop qemu-full virt-manager libvirt dnsmasq
+    kvantum qt5-wayland qt6-wayland hypridle xdg-utils
+    kde-cli-tools archlinux-xdg-menu imv zathura zathura-pdf-mupdf copyq
+)
+PKG_AUR_EXTENDED=(hyprshot libinput-gestures)
 
-CONFIG_FOLDERS=("hypr" "hyprland" "kitty" "waybar" "gtk-3.0" "Kvantum" "autostart" "dconf" "yay" "rofi")
-CONFIG_FILES=("arkrc" "dolphinrc" "kdeglobals" "kiorc" "ktrashrc" "QtProject.conf" "trashrc" "mimeapps.list")
+CONFIG_FOLDERS=(hypr hyprland kitty waybar gtk-3.0 Kvantum autostart dconf yay rofi)
+CONFIG_FILES=(arkrc dolphinrc kdeglobals kiorc ktrashrc QtProject.conf trashrc mimeapps.list libinput-gestures.conf)
 
-# --- Функция установки ---
+# ── helpers ──────────────────────────────────────────────────────────────────
+
+log()  { echo "  $*"; }
+info() { echo; echo "▸ $*"; }
+
 install_packages() {
     local pkgs=("$@")
-    local missing_pkgs=()
+    local missing=()
 
-    echo "Проверка пакетов..."
     for pkg in "${pkgs[@]}"; do
-        if pacman -Qq "$pkg" &> /dev/null; then
-            echo "  [ПРОПУСК] $pkg уже установлен."
-        else
-            missing_pkgs+=("$pkg")
-        fi
+        pacman -Qq "$pkg" &>/dev/null && log "[skip] $pkg already installed" || missing+=("$pkg")
     done
 
-    if [ ${#missing_pkgs[@]} -gt 0 ]; then
-        echo "  [УСТАНОВКА] ${missing_pkgs[*]}"
-        sudo pacman -S --needed --noconfirm "${missing_pkgs[@]}"
+    if [[ ${#missing[@]} -gt 0 ]]; then
+        log "[install] ${missing[*]}"
+        sudo pacman -S --needed --noconfirm "${missing[@]}"
     else
-        echo "  Все необходимые пакеты уже установлены."
+        log "all packages already installed"
     fi
 }
 
-# 1. Выбор типа установки
-echo "Выберите тип установки:"
-echo "1) Минимальная (база + Zsh + NetworkManager + Fastfetch)"
-echo "2) Расширенная (база + GUI, Rofi, Greetd, Шрифты, VSCode, KVM, Telegram)"
-read -p "Ваш выбор (1 или 2): " install_type
+safe_link() {
+    local src=$1 dest=$2
+    mkdir -p "$(dirname "$dest")"
+    if [[ -d "$src" ]]; then
+        rm -rf "$dest"
+        ln -sfn "$src" "$dest"
+    else
+        rm -f "$dest"
+        ln -sf "$src" "$dest"
+    fi
+    log "$dest → $src"
+}
 
-if [[ "$install_type" == "1" ]]; then
-    PACKAGES=("${PKG_MINIMAL[@]}")
-elif [[ "$install_type" == "2" ]]; then
-    PACKAGES=("${PKG_MINIMAL[@]}" "${PKG_EXTENDED[@]}")
-else
-    echo "Ошибка ввода. Отмена."
-    exit 1
-fi
+# ── 1. choose install type ───────────────────────────────────────────────────
 
-# 2. Обновление системы и установка пакетов pacman
-echo "Обновление системы..."
+echo "Select install type:"
+echo "  1) Minimal  — base + Zsh + NetworkManager + fastfetch"
+echo "  2) Extended — base + GUI, Rofi, Greetd, fonts, VSCode, KVM, Telegram"
+read -rp "Choice (1 or 2): " install_type
+
+case "$install_type" in
+    1) PACKAGES=("${PKG_MINIMAL[@]}") ;;
+    2) PACKAGES=("${PKG_MINIMAL[@]}" "${PKG_EXTENDED[@]}") ;;
+    *) echo "Invalid choice. Aborting."; exit 1 ;;
+esac
+
+# ── 2. system update + pacman packages ──────────────────────────────────────
+
+info "Updating system..."
 sudo pacman -Syu --noconfirm
 install_packages "${PACKAGES[@]}"
-
 sudo systemctl enable NetworkManager.service
 
-# 3. Настройка расширенных компонентов
+# ── 3. extended setup ───────────────────────────────────────────────────────
+
 if [[ "$install_type" == "2" ]]; then
-    
-    # Установка yay
-    if ! command -v yay &> /dev/null; then
-        echo "Установка yay..."
+
+    info "Installing yay (AUR helper)..."
+    if ! command -v yay &>/dev/null; then
         git clone https://aur.archlinux.org/yay.git /tmp/yay
         (cd /tmp/yay && makepkg -si --noconfirm)
         rm -rf /tmp/yay
+    else
+        log "yay already installed"
     fi
 
-    # Установка AUR пакетов
-    echo "Установка пакетов из AUR..."
+    info "Installing AUR packages..."
     yay -S --needed --noconfirm "${PKG_AUR_EXTENDED[@]}"
 
-    # Активация службы виртуализации (KVM) и добавление пользователя в группу
-    echo "Настройка QEMU/KVM..."
+    info "Configuring QEMU/KVM..."
     sudo systemctl enable libvirtd.service
     sudo usermod -aG libvirt "$USER"
+    sudo usermod -aG input "$USER"
 
-    # Замена SDDM на Greetd
-    if pacman -Qq sddm &> /dev/null; then
-        echo "Удаление SDDM..."
+    info "Replacing SDDM with greetd..."
+    if pacman -Qq sddm &>/dev/null; then
         sudo systemctl disable sddm.service 2>/dev/null || true
         sudo pacman -Rns --noconfirm sddm
     fi
 
-    if [ -f "$DOTFILES_DIR/etc/greetd/config.toml" ]; then
-        echo "Настройка Greetd..."
+    if [[ -f "$DOTFILES_DIR/etc/greetd/config.toml" ]]; then
         sudo mkdir -p /etc/greetd
         sudo cp "$DOTFILES_DIR/etc/greetd/config.toml" /etc/greetd/config.toml
+        sudo chown -R greeter:greeter /etc/greetd
     fi
-    sudo chown -R greeter:greeter /etc/greetd
     sudo systemctl enable greetd.service
 
-    # Создание Python VENV
-    if [ ! -d "$HOME/.venv" ]; then
-        echo "Создание виртуального окружения Python в ~/.venv..."
-        python -m venv "$HOME/.venv"
-    fi
+    info "Creating Python venv at ~/.venv..."
+    [[ -d "$HOME/.venv" ]] || python -m venv "$HOME/.venv"
 
-    # Заглушка для hyprlock
-    mkdir -p "$CONFIG_DIR/hypr"
-    if [ ! -f "$DOTFILES_DIR/.config/hypr/hyprlock.conf" ]; then
-        touch "$CONFIG_DIR/hypr/hyprlock.conf"
-    fi
 fi
 
-# 4. Установка Oh My Zsh и Powerlevel10k
-if [ ! -d "$HOME/.oh-my-zsh/templates" ]; then
-    echo "Установка Oh My Zsh..."
-    rm -rf "$HOME/.oh-my-zsh" # Очистка битой установки
+# ── 4. oh-my-zsh + powerlevel10k ────────────────────────────────────────────
+
+info "Installing Oh My Zsh..."
+if [[ ! -d "$HOME/.oh-my-zsh/templates" ]]; then
+    rm -rf "$HOME/.oh-my-zsh"
     RUNZSH=no CHSH=no sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+else
+    log "Oh My Zsh already installed"
 fi
 
 P10K_DIR="$HOME/.oh-my-zsh/custom/themes/powerlevel10k"
-if [ ! -d "$P10K_DIR" ]; then
-    echo "Клонирование Powerlevel10k..."
+if [[ ! -d "$P10K_DIR" ]]; then
+    info "Cloning Powerlevel10k..."
     git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "$P10K_DIR"
+else
+    log "Powerlevel10k already installed"
 fi
 
-# 5. Создание симлинков и настройка чистого Zsh
-echo "Линковка дотфайлов..."
+# ── 5. symlinks ──────────────────────────────────────────────────────────────
+
+info "Linking dotfiles..."
 mkdir -p "$CONFIG_DIR"
 
 for folder in "${CONFIG_FOLDERS[@]}"; do
-    if [ -d "$DOTFILES_DIR/.config/$folder" ]; then
-        rm -rf "$CONFIG_DIR/$folder"
-        ln -sfn "$DOTFILES_DIR/.config/$folder" "$CONFIG_DIR/$folder"
-    fi
+    [[ -d "$DOTFILES_DIR/.config/$folder" ]] && safe_link "$DOTFILES_DIR/.config/$folder" "$CONFIG_DIR/$folder"
 done
 
 for file in "${CONFIG_FILES[@]}"; do
-    if [ -f "$DOTFILES_DIR/.config/$file" ]; then
-        rm -f "$CONFIG_DIR/$file"
-        ln -sf "$DOTFILES_DIR/.config/$file" "$CONFIG_DIR/$file"
-    fi
+    [[ -f "$DOTFILES_DIR/.config/$file" ]] && safe_link "$DOTFILES_DIR/.config/$file" "$CONFIG_DIR/$file"
 done
 
-echo "Подготовка чистого конфигурационного файла Zsh..."
-if [ ! -f "$HOME/.zshrc" ]; then
-    if [ -f "$HOME/.oh-my-zsh/templates/zshrc.zsh-template" ]; then
+# ── 6. zsh config ───────────────────────────────────────────────────────────
+
+info "Configuring Zsh..."
+if [[ ! -f "$HOME/.zshrc" ]]; then
+    if [[ -f "$HOME/.oh-my-zsh/templates/zshrc.zsh-template" ]]; then
         cp "$HOME/.oh-my-zsh/templates/zshrc.zsh-template" "$HOME/.zshrc"
     else
-        # Прямое скачивание шаблона с GitHub
         curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/templates/zshrc.zsh-template -o "$HOME/.zshrc"
     fi
 fi
 sed -i 's/^ZSH_THEME=.*/ZSH_THEME="powerlevel10k\/powerlevel10k"/' "$HOME/.zshrc"
 
-# 6. Смена оболочки
-if [ "$SHELL" != "/usr/bin/zsh" ]; then
-    echo "Смена оболочки по умолчанию на Zsh..."
+# ── 7. default shell ─────────────────────────────────────────────────────────
+
+if [[ "$SHELL" != "/usr/bin/zsh" ]]; then
+    info "Changing default shell to Zsh..."
     if grep -q "^/usr/bin/zsh$" /etc/shells; then
         chsh -s /usr/bin/zsh
     else
-        echo "Внимание: /usr/bin/zsh не найден в /etc/shells. Смена оболочки пропущена."
+        log "WARNING: /usr/bin/zsh not in /etc/shells — skipping chsh"
     fi
 fi
 
-# 7. Перезагрузка
-echo "Установка завершена. Система будет перезагружена через 5 секунд..."
+# ── 8. reboot ────────────────────────────────────────────────────────────────
+
+echo
+echo "Done. Rebooting in 5 seconds..."
 sleep 5
 sudo reboot
