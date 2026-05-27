@@ -35,6 +35,7 @@ def load_session_key():
 def api_get(url, session_key):
     req = urllib.request.Request(url)
     req.add_header("Cookie", f"sessionKey={session_key}")
+    req.add_header("Accept", "application/json")
     req.add_header("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36")
     req.add_header("anthropic-client-platform", "web_claude_ai")
     with urllib.request.urlopen(req, timeout=15) as resp:
@@ -67,27 +68,10 @@ def output_error(msg, transient=False):
     sys.exit(0)
 
 
-def wait_for_network(timeout=30):
-    import socket
-    deadline = __import__('time').time() + timeout
-    while __import__('time').time() < deadline:
-        try:
-            socket.setdefaulttimeout(2)
-            socket.socket().connect(("8.8.8.8", 53))
-            return True
-        except OSError:
-            __import__('time').sleep(2)
-    return False
-
-
 def main():
     session_key = load_session_key()
     if not session_key:
         output_error("set sessionKey")
-        return
-
-    if not wait_for_network():
-        output_error("offline")
         return
 
     try:
