@@ -104,5 +104,5 @@ element-text {
     font:             "JetBrainsMono Nerd Font 13";
     vertical-align:   0.5;
     horizontal-align: 0.0;
-    highlight:        bold var(accent);
+    highlight:        bold #fabd2f;
 }
