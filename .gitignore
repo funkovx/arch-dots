@@ -12,3 +12,4 @@
 
 # Claude widget secret (session key — never commit)
 .config/claude-limits-widget/
+.DS_Store
