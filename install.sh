@@ -11,6 +11,7 @@ PKG_EXTENDED=(
     code telegram-desktop qemu-full virt-manager libvirt dnsmasq
     kvantum qt5-wayland qt6-wayland hypridle xdg-utils
     kde-cli-tools archlinux-xdg-menu imv zathura zathura-pdf-mupdf copyq
+    brightnessctl
 )
 PKG_AUR_EXTENDED=(hyprshot libinput-gestures)
 
