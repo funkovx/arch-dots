@@ -21,7 +21,7 @@ My Arch Linux setup: Hyprland on Wayland with a dark Gruvbox-inspired look, plus
 On a fresh Arch install:
 
 ```bash
-git clone https://github.com/qfunky/arch-dots.git ~/.dotfiles
+git clone https://github.com/funkovx/arch-dots.git ~/.dotfiles
 cd ~/.dotfiles
 ./install.sh
 ```
@@ -43,7 +43,7 @@ Pulls the latest commit, re-links all configs and reloads Hyprland.
 
 ## Waybar Claude usage module
 
-`.config/waybar/scripts/claude-limits.py` shows the current claude.ai session and weekly usage in the bar. It reads the session key from `~/.config/claude-limits-widget/secret.env`, which is git-ignored and never committed. Setup steps are in the script header. A macOS version lives in [claude-limits-swiftbar](https://github.com/qfunky/claude-limits-swiftbar).
+`.config/waybar/scripts/claude-limits.py` shows the current claude.ai session and weekly usage in the bar. It reads the session key from `~/.config/claude-limits-widget/secret.env`, which is git-ignored and never committed. Setup steps are in the script header. A macOS version lives in [claude-limits-swiftbar](https://github.com/funkovx/claude-limits-swiftbar).
 
 ## Screenshots
 
