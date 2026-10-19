@@ -1,49 +1,57 @@
 # arch-dots
-## 1. Generate SSH Key
+
+My Arch Linux setup: Hyprland on Wayland with a dark Gruvbox-inspired look, plus a one-shot installer that turns a fresh Arch install into a working desktop.
+
+![fastfetch](1.png)
+
+## What's inside
+
+| Area | Tools |
+| --- | --- |
+| Compositor | Hyprland (`hyprland.conf` and the newer Lua config for 0.55+), hypridle, hyprlock, hyprpaper |
+| Bar and launcher | Waybar with a custom Claude usage module, Rofi (Gruvbox Dark theme) |
+| Terminal and shell | kitty, Zsh, Oh My Zsh, Powerlevel10k |
+| Login | greetd + tuigreet, starts Hyprland directly |
+| Apps | Dolphin, Kvantum theming for Qt, CopyQ clipboard manager, imv, zathura |
+| Input | libinput-gestures for touchpad swipes |
+| Virtualization | QEMU/KVM with libvirt and virt-manager |
+
+## Install
+
+On a fresh Arch install:
+
 ```bash
-ssh-keygen -t ed25519 -C "you@example.com"
-```
-
-Press Enter to save the key in the default location.
-Copy your public key to the clipboard:
-
-```bash
-cat ~/.ssh/id_ed25519.pub
-```
-Add this key to GitHub settings under SSH and GPG keys.
-
-## 2. Clone the Repository
-
-Clone the repository using SSH:
-```bash
-git clone git@github.com:qfunky/arch-dots.git ~/.dotfiles
+git clone https://github.com/qfunky/arch-dots.git ~/.dotfiles
 cd ~/.dotfiles
-```
-
-## 3. Install dotfiles
-
-Install dotfiles using shell script.
-```bash
 ./install.sh
 ```
 
-## 4. Post inst
-Throne can be downloaded after rebooting.
-System can be restored and updated using:
+The script asks for an install type:
+
+- **Minimal**: base tools, Zsh, NetworkManager, fastfetch.
+- **Extended**: everything above plus the Hyprland desktop, greetd (replaces SDDM), fonts, VS Code, Telegram, KVM and AUR packages via `yay`.
+
+It then symlinks every config into `~/.config`, sets Zsh as the default shell and reboots.
+
+## Keeping machines in sync
+
 ```bash
 ./sync.sh
 ```
 
+Pulls the latest commit, re-links all configs and reloads Hyprland.
+
+## Waybar Claude usage module
+
+`.config/waybar/scripts/claude-limits.py` shows the current claude.ai session and weekly usage in the bar. It reads the session key from `~/.config/claude-limits-widget/secret.env`, which is git-ignored and never committed. Setup steps are in the script header. A macOS version lives in [claude-limits-swiftbar](https://github.com/qfunky/claude-limits-swiftbar).
+
 ## Screenshots
 
-**Fastfetch**
-![Fastfetch](1.png)
+**nmtui in a floating window**
 
-**Throne** (need to install with yay after reboot)
-![Throne](2.png)
+![nmtui](3.png)
 
-**Nmtui**
-![Nmtui](3.png)
+## Notes
 
-**Clipboard**
-![Clipboard](4.png)
+- Built for a 2880×1620 laptop panel at 2× scaling. Change the `monitor` line in the Hyprland config for other displays.
+- Private app data (VPN client config, KDE session files, secrets) is excluded in `.gitignore`.

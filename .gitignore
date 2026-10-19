@@ -13,3 +13,9 @@
 # Claude widget secret (session key — never commit)
 .config/claude-limits-widget/
 .DS_Store
+
+# GNOME/dconf binary settings database
+.config/dconf/
+
+# Screenshots that may show private data
+screenshots-private/

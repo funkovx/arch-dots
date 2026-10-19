@@ -15,7 +15,7 @@ PKG_EXTENDED=(
 )
 PKG_AUR_EXTENDED=(hyprshot libinput-gestures)
 
-CONFIG_FOLDERS=(hypr hyprland kitty waybar gtk-3.0 Kvantum autostart dconf yay rofi)
+CONFIG_FOLDERS=(hypr hyprland kitty waybar gtk-3.0 Kvantum autostart yay rofi)
 CONFIG_FILES=(arkrc dolphinrc kdeglobals kiorc ktrashrc QtProject.conf trashrc mimeapps.list libinput-gestures.conf)
 
 # ── helpers ──────────────────────────────────────────────────────────────────
