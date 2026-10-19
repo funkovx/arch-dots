@@ -47,6 +47,18 @@ Pulls the latest commit, re-links all configs and reloads Hyprland.
 
 ## Screenshots
 
+**Clean desktop** with the Waybar panel: workspaces, clock, Claude usage, CPU, memory, volume, Wi-Fi, brightness and battery
+
+![Desktop](desktop.png)
+
+**Rofi app launcher**
+
+![Rofi](rofi.png)
+
+**Dolphin** file manager with Kvantum theming
+
+![Dolphin](dolphin.png)
+
 **nmtui in a floating window**
 
 ![nmtui](3.png)
