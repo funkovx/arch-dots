@@ -1,0 +1,151 @@
+window#quick-settings {
+    background: transparent;
+}
+
+dialog {
+    background: #202020;
+    color: #f2f2f2;
+    font-family: "JetBrainsMono Nerd Font Mono", monospace;
+    font-size: 13px;
+}
+
+.panel {
+    background: #202020;
+    color: #f2f2f2;
+    font-family: "JetBrainsMono Nerd Font Mono", monospace;
+    font-size: 13px;
+    border: 1px solid #555555;
+    border-radius: 12px;
+}
+
+label {
+    color: #f2f2f2;
+}
+
+label.title {
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.card {
+    background: #303030;
+    border: 1px solid #444444;
+    border-radius: 10px;
+    padding: 10px;
+}
+
+button {
+    background: #3b3b3b;
+    color: #f2f2f2;
+    border: 1px solid #555555;
+    border-radius: 7px;
+    padding: 7px 10px;
+    box-shadow: none;
+    text-shadow: none;
+}
+
+button:hover, button:focus {
+    background: #505050;
+    color: #ffffff;
+}
+
+button.expand {
+    background: transparent;
+    border: none;
+    font-weight: bold;
+}
+
+button.close {
+    padding: 2px 8px;
+}
+
+switch {
+    background: #555555;
+    border: 1px solid #777777;
+    border-radius: 20px;
+}
+
+switch:checked {
+    background: #d0d0d0;
+}
+
+switch slider {
+    background: #f5f5f5;
+    border-radius: 50%;
+}
+
+switch:checked slider {
+    background: #303030;
+}
+
+scale trough {
+    background: #555555;
+    border-radius: 5px;
+    min-height: 7px;
+}
+
+scale highlight {
+    background: #eeeeee;
+    border-radius: 5px;
+}
+
+scale slider {
+    background: #f5f5f5;
+    border: 1px solid #888888;
+    border-radius: 50%;
+    min-width: 14px;
+    min-height: 14px;
+}
+
+entry {
+    background: #353535;
+    color: #ffffff;
+    caret-color: #ffffff;
+    border: 1px solid #777777;
+    border-radius: 6px;
+    padding: 8px;
+}
+
+.network-scroll, .network-scroll viewport {
+    background: transparent;
+    border: none;
+}
+
+notebook, notebook > stack, notebook header {
+    background: transparent;
+    color: #f2f2f2;
+    border: none;
+}
+
+notebook tab {
+    background: #3b3b3b;
+    color: #cccccc;
+    border-radius: 7px 7px 0 0;
+    padding: 7px 14px;
+    margin-right: 5px;
+}
+
+notebook tab:checked {
+    background: #555555;
+    color: #ffffff;
+    border-bottom: 2px solid #eeeeee;
+    box-shadow: none;
+}
+
+.audio-scroll, .audio-scroll viewport {
+    background: transparent;
+    border: none;
+}
+
+.audio-heading {
+    font-weight: bold;
+    color: #ffffff;
+    margin-top: 5px;
+}
+
+.audio-device {
+    background: #383838;
+    border: 1px solid #555555;
+    border-radius: 8px;
+    padding: 7px;
+}

@@ -12,6 +12,8 @@ PKG_EXTENDED=(
     kvantum qt5-wayland qt6-wayland hypridle xdg-utils
     kde-cli-tools archlinux-xdg-menu imv zathura zathura-pdf-mupdf copyq
     brightnessctl
+    bluez bluez-utils pipewire pipewire-pulse wireplumber libpulse
+    gtk3 gtk-layer-shell python-gobject power-profiles-daemon libnotify
 )
 PKG_AUR_EXTENDED=(hyprshot libinput-gestures)
 
@@ -75,6 +77,9 @@ sudo systemctl enable NetworkManager.service
 # ── 3. extended setup ───────────────────────────────────────────────────────
 
 if [[ "$install_type" == "2" ]]; then
+
+    info "Enabling Bluetooth and power profiles..."
+    sudo systemctl enable bluetooth.service power-profiles-daemon.service
 
     info "Installing yay (AUR helper)..."
     if ! command -v yay &>/dev/null; then

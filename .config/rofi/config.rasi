@@ -1,7 +1,6 @@
 configuration {
     modi:            "drun,run,window";
-    show-icons:      true;
-    icon-theme:      "Papirus-Dark";
+    show-icons:      false;
     drun-display-format: "{name}";
     display-drun:    " Apps";
     display-run:     " Run";
@@ -9,4 +8,4 @@ configuration {
     terminal:        "kitty";
 }
 
-@theme "~/.config/rofi/themes/gruvbox-dark.rasi"
+@theme "~/.config/rofi/themes/monochrome.rasi"

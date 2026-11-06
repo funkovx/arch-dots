@@ -4,16 +4,15 @@
     "height": 36,
     "spacing": 4,
     "modules-left": ["hyprland/workspaces", "hyprland/window"],
-    "modules-center": ["clock"],
+    "modules-center": ["idle_inhibitor", "clock"],
     "modules-right": [
-        "custom/claude-limits",
-        "cpu",
-        "memory",
+        "temperature",
         "pulseaudio",
         "hyprland/language",
         "network",
         "backlight",
-        "battery"
+        "battery",
+        "custom/quick-settings"
     ],
 
     "hyprland/workspaces": {
@@ -29,6 +28,12 @@
         "separate-outputs": true
     },
 
+    "idle_inhibitor": {
+        "format": "{icon}",
+        "format-icons": {"activated": "", "deactivated": ""},
+        "tooltip": true
+    },
+
     "clock": {
         "format": "{:%H:%M}",
         "format-alt": "{:%A, %d %B %Y}",
@@ -40,45 +45,46 @@
         }
     },
 
-    "cpu": {
-        "format": "cpu {usage}%",
-        "tooltip": false,
-        "interval": 2
-    },
-
-    "memory": {
-        "format": "mem {}%",
-        "tooltip-format": "{used:0.1f}G / {total:0.1f}G",
-        "interval": 5
+    "temperature": {
+        "hwmon-path-abs": "/sys/devices/platform/coretemp.0/hwmon",
+        "input-filename": "temp1_input",
+        "format": "{temperatureC}°C",
+        "critical-threshold": 80,
+        "format-critical": "{temperatureC}°C",
+        "tooltip-format": "CPU: {temperatureC}°C",
+        "interval": 5,
+        "tooltip": true
     },
 
     "pulseaudio": {
-        "format": "vol {volume}%",
-        "format-muted": "vol muted",
-        "on-click": "pavucontrol",
-        "tooltip": false
+        "format": "{icon}",
+        "format-muted": "󰝟",
+        "format-icons": {"default": ["󰕿", "󰖀", "󰕾"]},
+        "on-click": "~/.config/waybar/scripts/quick-settings.py sound",
+        "tooltip-format": "Volume: {volume}%"
     },
 
     "backlight": {
-        "format": "☀ {percent}%",
+        "format": "☀",
+        "on-click": "~/.config/waybar/scripts/quick-settings.py brightness",
         "on-scroll-up": "brightnessctl s +1%",
         "on-scroll-down": "brightnessctl s 1%-",
-        "tooltip": false
+        "tooltip-format": "Brightness: {percent}%"
     },
 
     "hyprland/language": {
-        "format": "kb {}",
-        "format-en": "US",
+        "format": "{}",
+        "format-en": "EN",
         "format-ru": "RU"
     },
 
     "network": {
-        "format-wifi": "wifi {signalStrength}%",
-        "format-ethernet": "eth",
-        "format-disconnected": "offline",
-        "tooltip-format-wifi": "{essid}  {signalStrength}%\n{ipaddr}",
-        "tooltip-format-ethernet": "{ifname}: {ipaddr}",
-        "on-click": "nmcli device wifi rescan && kitty --class nmtui-float -e sh -c 'export NEWT_COLORS=\"root=black,black;window=gray,lightgray;textbox=gray,lightgray;button=black,lightgray;compactbutton=gray,lightgray;listbox=gray,lightgray;actlistbox=gray,lightgray;actsellistbox=lightgray,black;entry=gray,lightgray;checkbox=gray,lightgray;actcheckbox=lightgray,black\" && nmtui connect'"
+        "format-wifi": "{icon}",
+        "format-icons": ["󰤯", "󰤟", "󰤢", "󰤥", "󰤨"],
+        "format-ethernet": "󰈀",
+        "format-disconnected": "󰤭",
+        "tooltip-format-wifi": "{essid} · {signalStrength}%\n{ipaddr}",
+        "on-click": "~/.config/waybar/scripts/quick-settings.py wifi"
     },
 
     "battery": {
@@ -87,18 +93,18 @@
             "warning": 30,
             "critical": 15
         },
-        "format": "bat {capacity}%",
-        "format-charging": "chg {capacity}%",
-        "format-plugged": "plug {capacity}%",
-        "tooltip-format": "{timeTo}"
+        "format": "󰁹 {capacity}%",
+        "format-charging": " {capacity}%",
+        "format-plugged": " {capacity}%",
+        "tooltip-format": "Battery: {capacity}% · {timeTo}",
+        "on-click": "~/.config/waybar/scripts/quick-settings.py power"
     },
 
-    "custom/claude-limits": {
-        "exec": "~/.config/waybar/scripts/claude-limits.py",
-        "return-type": "json",
+    "custom/quick-settings": {
+        "format": "󰒓",
+        "tooltip": "Quick settings",
+        "exec": "nmcli -w 10 device wifi rescan >/dev/null 2>&1; printf ready",
         "interval": 60,
-        "tooltip": true,
-        "format": "{}",
-        "on-click": "xdg-open https://claude.ai/settings/usage"
+        "on-click": "~/.config/waybar/scripts/quick-settings.py"
     }
 }
