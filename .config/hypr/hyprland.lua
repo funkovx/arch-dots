@@ -160,7 +160,9 @@ hl.bind(mainMod .. " + t", hl.dsp.exec_cmd(terminal))
 hl.bind(mainMod .. " + q", hl.dsp.window.close())
 hl.bind(mainMod .. " + M", hl.dsp.exec_cmd("command -v hyprshutdown >/dev/null 2>&1 && hyprshutdown || hyprctl dispatch 'hl.dsp.exit()'"))
 hl.bind(mainMod .. " + E", hl.dsp.exec_cmd(fileManager))
-hl.bind(mainMod .. " + F", hl.dsp.window.float({ action = "toggle" }))
+hl.bind(mainMod .. " + F", hl.dsp.window.fullscreen({ mode = 1 }))
+hl.bind(mainMod .. " + SHIFT + F", hl.dsp.window.float({ action = "toggle" }))
+hl.bind(mainMod .. " + G", hl.dsp.exec_cmd("~/.config/hypr/scripts/game-mode.py"))
 hl.bind(mainMod .. " + A", hl.dsp.exec_cmd("rofi -show drun"))
 
 -- waybar
@@ -176,7 +178,6 @@ hl.bind(mainMod .. " + P", hl.dsp.exec_cmd("hyprshot -m region -o ~/Pictures/Scr
 hl.bind(mainMod .. " + V", hl.dsp.exec_cmd("copyq show"))
 
 -- fullscreen
--- ⚠ сигнатура fullscreen-диспетчера не подтверждена по актуальной вики — проверь на месте
 hl.bind(mainMod .. " + U", hl.dsp.window.fullscreen({ mode = 0 }))
 
 -- переключение по рабочим столам mainMod + [0-9]
