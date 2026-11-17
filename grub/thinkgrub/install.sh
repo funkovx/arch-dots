@@ -20,25 +20,33 @@ destination=/boot/grub/themes/thinkgrub
 backup_dir=$(mktemp -d /etc/default/grub-backup-thinkgrub.XXXXXX)
 cp -a /etc/default/grub "$backup_dir/default-grub"
 cp /boot/grub/grub.cfg "$backup_dir/grub.cfg"
+if [[ -d "$destination" ]]; then
+    cp -R --no-preserve=all "$destination" "$backup_dir/theme"
+fi
 temporary_config=$(mktemp /boot/grub/grub.cfg.thinkgrub.XXXXXX)
 
 restore_on_error() {
     local failure_status=$1
     trap - ERR
     cp -a "$backup_dir/default-grub" /etc/default/grub
+    rm -rf -- "$destination"
+    if [[ -d "$backup_dir/theme" ]]; then
+        mkdir -p "$destination"
+        cp -R --no-preserve=all "$backup_dir/theme/." "$destination/"
+    fi
     rm -f -- "$temporary_config" "${temporary_config}.new"
-    echo "Installation failed; restored GRUB defaults. Backup: $backup_dir" >&2
+    echo "Installation failed; restored GRUB defaults and theme. Backup: $backup_dir" >&2
     exit "$failure_status"
 }
 trap 'restore_on_error "$?"' ERR
 prepare_theme "$destination" "$logo"
 
-# One logical canvas keeps the apparent UI size consistent across panel DPIs.
-# Firmware scales it; percentage geometry also fits the 1024x768 fallback.
-sed -i '/^GRUB_THEME=/d; /^GRUB_GFXMODE=/d; /^GRUB_TERMINAL_OUTPUT=/d; /^GRUB_BACKGROUND=/d' /etc/default/grub
+# Keep the current ASUS appearance, with a mode for smaller firmware displays.
+# GRUB_TERMINAL overrides GRUB_TERMINAL_OUTPUT in grub-mkconfig.
+sed -Ei '/^[[:blank:]]*(export[[:blank:]]+)?GRUB_(THEME|GFXMODE|TERMINAL|TERMINAL_OUTPUT|BACKGROUND)=/d' /etc/default/grub
 cat >> /etc/default/grub <<'SETTINGS'
 GRUB_THEME="/boot/grub/themes/thinkgrub/theme.txt"
-GRUB_GFXMODE="1280x720,1024x768,auto"
+GRUB_GFXMODE="1920x1080,1600x900,1280x720,1024x768,auto"
 GRUB_TERMINAL_OUTPUT="gfxterm"
 SETTINGS
 grub-mkconfig -o "$temporary_config"

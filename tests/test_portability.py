@@ -2,6 +2,7 @@
 
 import importlib.util
 import os
+import re
 from pathlib import Path
 import subprocess
 import tempfile
@@ -19,6 +20,80 @@ def module(name, path):
 
 
 class Portability(unittest.TestCase):
+    def test_grub_install_and_rollback(self):
+        for existing in (False, True):
+            for failure in ("none", "generate", "syntax", "missing-theme"):
+                with self.subTest(existing=existing, failure=failure), tempfile.TemporaryDirectory() as temp:
+                    root = Path(temp)
+                    for folder in ("etc/default", "boot/grub/themes", "commands"):
+                        (root / folder).mkdir(parents=True)
+                    default = root / "etc/default/grub"
+                    original = ('GRUB_CMDLINE_LINUX_DEFAULT="cryptdevice=UUID=test:root quiet"\n'
+                                '  export GRUB_TERMINAL=console\n'
+                                ' GRUB_THEME="/old/theme.txt"\nGRUB_GFXMODE=auto\n')
+                    default.write_text(original)
+                    grub = root / "boot/grub/grub.cfg"
+                    grub.write_text("original config")
+                    theme = root / "boot/grub/themes/thinkgrub"
+                    if existing:
+                        theme.mkdir()
+                        (theme / "theme.txt").write_text("old theme")
+                        (theme / "logo.png").write_bytes(b"old logo")
+                    shutil.copytree(ROOT / "grub/thinkgrub", root / "app")
+                    script = (root / "app/install.sh").read_text()
+                    script = script.replace("if (( EUID != 0 )); then", "if false; then")
+                    for prefix in ("/etc/", "/boot/"):
+                        script = script.replace(prefix, str(root) + prefix)
+                    (root / "app/install.sh").write_text(script)
+                    config = "# /themes/thinkgrub/theme.txt" if failure != "missing-theme" else "# no theme"
+                    stubs = {
+                        "grub-mkconfig": f'echo "{config}" > "$2"\nexit {1 if failure == "generate" else 0}',
+                        "grub-script-check": f'exit {1 if failure == "syntax" else 0}',
+                    }
+                    for name, body in stubs.items():
+                        path = root / "commands" / name
+                        path.write_text("#!/bin/sh\n" + body + "\n")
+                        path.chmod(0o755)
+                    env = {**os.environ, "PATH": str(root / "commands") + ":" + os.environ["PATH"]}
+                    run = lambda: subprocess.run(["bash", str(root / "app/install.sh"), "asus"],
+                                                 env=env, capture_output=True, text=True)
+                    result = run()
+                    if failure != "none":
+                        self.assertNotEqual(result.returncode, 0)
+                        self.assertEqual(default.read_text(), original)
+                        self.assertEqual(grub.read_text(), "original config")
+                        if existing:
+                            self.assertEqual({p.name for p in theme.iterdir()}, {"theme.txt", "logo.png"})
+                            self.assertEqual((theme / "theme.txt").read_text(), "old theme")
+                            self.assertEqual((theme / "logo.png").read_bytes(), b"old logo")
+                        else:
+                            self.assertFalse(theme.exists())
+                    else:
+                        self.assertEqual(result.returncode, 0, result.stderr)
+                        settings = default.read_text()
+                        self.assertIn(original.splitlines()[0], settings)
+                        self.assertNotIn("GRUB_TERMINAL=console", settings)
+                        self.assertEqual(settings.count("GRUB_THEME="), 1)
+                        self.assertIn("1920x1080,1600x900,1280x720,1024x768,auto", settings)
+                        self.assertEqual((theme / "theme.txt").read_bytes(),
+                                         (ROOT / "grub/thinkgrub/theme/theme.txt").read_bytes())
+                        result = run()
+                        self.assertEqual(result.returncode, 0, result.stderr)
+                        self.assertEqual(default.read_text(), settings)
+
+    def test_prepared_grub_assets_are_self_contained(self):
+        for logo in ("asus", "thinkpad", "none"):
+            with self.subTest(logo=logo), tempfile.TemporaryDirectory() as temp:
+                subprocess.run([str(ROOT / "grub/thinkgrub/prepare.sh"), temp, logo],
+                               check=True, capture_output=True)
+                target = Path(temp)
+                theme = (target / "theme.txt").read_text()
+                for asset in re.findall(r'(?:file\s*=|[\w-]*(?:box|style)\s*[:=])\s*"([^"]+\.png)"', theme):
+                    self.assertTrue(list(target.glob(asset)), asset)
+                fonts = b"".join(p.read_bytes() for p in target.glob("*.pf2"))
+                for font in re.findall(r'(?:[\w-]*font)\s*[:=]\s*"([^"]+)"', theme):
+                    self.assertIn(font.encode(), fonts)
+
     def test_plymouth_setup_and_rollback(self):
         for fail in (False, True):
             with self.subTest(build_failure=fail), tempfile.TemporaryDirectory() as temp:

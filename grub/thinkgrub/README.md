@@ -22,19 +22,22 @@ Manual override: append `thinkpad`, `asus` or `none`.
 
 ## Display
 
-- Logical mode: 1280×720.
-- Fallbacks: 1024×768, then `auto`.
-- Layout: centered, percentage-based width, 28 px menu text.
+The checked-in theme preserves the current ASUS appearance: a centered
+900×340 panel, a 320×107 ASUS logo, and bundled 20/28 px fonts. ThinkPad uses
+a 216×78 logo; other machines use the same menu without a logo. No local
+files or font generation are needed to reproduce it after a fresh clone.
 
-Firmware scales the logical mode to the panel. This keeps sizing consistent
-across FHD/QHD/UHD displays; native-resolution sharpness may differ.
-Unsupported firmware modes require a local adjustment.
+Display modes are tried in order: 1920×1080, 1600×900, 1280×720, 1024×768,
+then `auto`. The fixed layout fits all four requested modes. Firmware must
+support one of them for the intended appearance; an `auto` mode below
+1024×720 may clip the layout. Physical sizing depends on the panel.
 
 ## Recovery
 
-The installer backs up GRUB defaults and configuration, preserves kernel
-arguments and checks the generated config before replacement. FAT ESPs are
-supported. It does not run `grub-install` or modify EFI boot entries.
+The installer backs up GRUB defaults, configuration and the previous theme,
+preserves kernel arguments and checks the generated config before replacement.
+On failure it restores defaults and theme and leaves the active config intact.
+FAT ESPs are supported. It does not run `grub-install` or modify EFI boot entries.
 
 ## Attribution
 

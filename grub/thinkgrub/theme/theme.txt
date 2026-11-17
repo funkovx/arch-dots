@@ -4,9 +4,9 @@ terminal-box: "terminal_box_*.png"
 terminal-font: "DejaVu Sans Regular 20"
 
 + label {
-    left = 17%
+    left = 50%-422
     top = 50%-151
-    width = 66%
+    width = 844
     height = 30
     text = "boot menu"
     font = "DejaVu Sans Regular 20"
@@ -15,9 +15,9 @@ terminal-font: "DejaVu Sans Regular 20"
 }
 
 + boot_menu {
-    left = 16%
+    left = 50%-432
     top = 50%-106
-    width = 68%
+    width = 864
     height = 236
     item_font = "DejaVu Sans Regular 28"
     item_color = "#ffffff"
@@ -34,11 +34,11 @@ terminal-font: "DejaVu Sans Regular 20"
 }
 
 + label {
-    left = 17%
+    left = 50%-422
     top = 50%+128
-    width = 66%
+    width = 620
     height = 30
-    text = "UP/DN select   ENTER boot   E edit"
+    text = "UP/DN select   E edit   ENTER boot"
     font = "DejaVu Sans Regular 20"
     color = "#aaaaaa"
     align = "left"
@@ -46,14 +46,14 @@ terminal-font: "DejaVu Sans Regular 20"
 
 + label {
     id = "__timeout__"
-    left = 17%
-    top = 50%+175
-    width = 66%
+    left = 50%+202
+    top = 50%+128
+    width = 220
     height = 30
     text = "boot in %ds"
     font = "DejaVu Sans Regular 20"
     color = "#aaaaaa"
-    align = "center"
+    align = "right"
 }
 
 # LOGO_BEGIN
@@ -68,9 +68,9 @@ terminal-font: "DejaVu Sans Regular 20"
 
 # Keep the opaque panel last: GRUB paints canvas components in reverse.
 + image {
-    left = 15%
+    left = 50%-450
     top = 50%-170
-    width = 70%
+    width = 900
     height = 340
     file = "panel.png"
 }
