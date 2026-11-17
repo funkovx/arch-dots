@@ -1,16 +1,12 @@
 # arch-dots
 
-Portable Arch Linux laptop configuration. Hyprland, a monochrome desktop,
-ThinkGRUB and an Arch Linux boot splash.
+My Arch Linux laptop dotfiles.
 
 ## Requirements
 
 - Arch Linux, x86-64.
 - A working graphics driver and network connection.
 - An existing GRUB + mkinitcpio setup for boot styling.
-
-GPU drivers, Secure Boot and disk encryption remain machine-specific.
-Other bootloaders are left unchanged.
 
 ## Installation
 
@@ -28,17 +24,11 @@ cd ~/.dotfiles
 Existing configuration is backed up before linking. Boot files are validated
 before replacement. The installer does not reboot automatically.
 
-Both profiles ask whether to install the GRUB theme. Logo selection is
-automatic: ThinkPad, ASUS or no logo. Declining preserves the current theme.
-
 ## Synchronization
 
 ```sh
 ./sync.sh
 ```
-
-Updates use fast-forward only. Configuration links follow the installed
-profile.
 
 ## Screenshots
 
@@ -68,6 +58,4 @@ Tuigreet
 
 ## References
 
-- [Hyprland](https://hypr.land/)
 - [ThinkGRUB](https://github.com/mschiller890/ThinkGRUB) — MIT; license included with the theme.
-- [Plymouth](https://www.freedesktop.org/wiki/Software/Plymouth/)
