@@ -48,10 +48,6 @@ GRUB
 
 ![GRUB](docs/images/grub.png)
 
-Plymouth
-
-![Plymouth](docs/images/boot-splash.png)
-
 Tuigreet
 
 ![Tuigreet](docs/images/login.png)
