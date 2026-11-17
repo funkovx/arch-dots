@@ -53,6 +53,13 @@ case "$install_type" in
     *) echo "Invalid choice. Aborting."; exit 1 ;;
 esac
 
+read -rp "Install the GRUB theme? [Y/n]: " grub_theme_choice
+case "${grub_theme_choice,,}" in
+    ""|y|yes) install_grub_theme=true ;;
+    n|no) install_grub_theme=false ;;
+    *) echo "Invalid choice. Aborting."; exit 1 ;;
+esac
+
 # ── 2. system update + pacman packages ──────────────────────────────────────
 
 info "Updating system..."
@@ -63,7 +70,9 @@ sudo systemctl enable NetworkManager.service
 # Configure an existing GRUB installation in both profiles. Do not replace a
 # different bootloader or install an EFI boot entry implicitly.
 info "Configuring boot appearance..."
-sudo "$DOTFILES_DIR/grub/thinkgrub/install.sh"
+if "$install_grub_theme"; then
+    sudo "$DOTFILES_DIR/grub/thinkgrub/install.sh"
+fi
 sudo "$DOTFILES_DIR/plymouth/install.sh"
 
 # ── 3. extended setup ───────────────────────────────────────────────────────

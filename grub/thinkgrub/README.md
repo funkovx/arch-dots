@@ -1,7 +1,8 @@
 # ThinkGRUB
 
 Monochrome GRUB theme based on [ThinkGRUB](https://github.com/mschiller890/ThinkGRUB).
-Requires an existing GRUB installation.
+Requires an existing GRUB installation. Both main installer profiles offer
+the theme as an optional step.
 
 ## Install
 

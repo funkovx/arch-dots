@@ -22,28 +22,14 @@ cd ~/.dotfiles
 
 | Profile | Configuration |
 | --- | --- |
-| Minimal | Base tools, Zsh, NetworkManager, fastfetch, ThinkGRUB, Plymouth |
+| Minimal | Base tools, Zsh, NetworkManager, fastfetch, Plymouth |
 | Extended | Minimal profile plus Hyprland, Waybar, Rofi, greetd/tuigreet, desktop applications and KVM tools |
 
 Existing configuration is backed up before linking. Boot files are validated
 before replacement. The installer does not reboot automatically.
 
-## Boot configuration
-
-```sh
-sudo ~/.dotfiles/bin/configure-boot
-```
-
-| Hardware | GRUB logo |
-| --- | --- |
-| ThinkPad | Original ThinkGRUB wordmark |
-| ASUS | White ASUS wordmark |
-| Other / unknown | None |
-
-GRUB uses a shared logical display size. Plymouth displays the Arch logo on
-black, then hands control to the existing login manager.
-
-Details: [GRUB](grub/thinkgrub/README.md) · [Plymouth](plymouth/README.md)
+Both profiles ask whether to install the GRUB theme. Logo selection is
+automatic: ThinkPad, ASUS or no logo. Declining preserves the current theme.
 
 ## Synchronization
 
@@ -52,20 +38,33 @@ Details: [GRUB](grub/thinkgrub/README.md) · [Plymouth](plymouth/README.md)
 ```
 
 Updates use fast-forward only. Configuration links follow the installed
-profile. Boot changes require a separate `bin/configure-boot` run.
-
-## Verification
-
-```sh
-PYTHONDONTWRITEBYTECODE=1 python -m unittest discover -s tests -v
-```
-
-Tests cover logo selection, local configuration preservation, sensor detection,
-kernel arguments and boot-setup rollback.
+profile.
 
 ## Screenshots
 
-See the [capture list](docs/screenshots.md).
+Rofi
+
+![Rofi](docs/images/launcher.png)
+
+| Quick settings | Sound |
+| --- | --- |
+| ![Quick settings](docs/images/quick-settings.png) | ![Sound](docs/images/sound.png) |
+
+| Wi-Fi | Power |
+| --- | --- |
+| ![Wi-Fi](docs/images/wifi.png) | ![Power](docs/images/power.png) |
+
+GRUB
+
+![GRUB](docs/images/grub.png)
+
+Plymouth
+
+![Plymouth](docs/images/boot-splash.png)
+
+Tuigreet
+
+![Tuigreet](docs/images/login.png)
 
 ## References
 
