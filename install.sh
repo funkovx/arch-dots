@@ -1,25 +1,23 @@
 #!/bin/bash
 set -e
 
-DOTFILES_DIR="$HOME/.dotfiles"
+DOTFILES_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 CONFIG_DIR="$HOME/.config"
+source "$DOTFILES_DIR/lib/install-common.sh"
 
-PKG_MINIMAL=(git curl htop zsh networkmanager base-devel fastfetch)
+PKG_MINIMAL=(git curl htop zsh networkmanager base-devel fastfetch python grub plymouth)
 PKG_EXTENDED=(
     firefox dolphin hyprland waybar kitty hyprlock hyprpolkitagent
     greetd greetd-tuigreet python rofi ttf-jetbrains-mono-nerd
     code telegram-desktop qemu-full virt-manager libvirt dnsmasq
     kvantum qt5-wayland qt6-wayland hypridle xdg-utils
+    xdg-desktop-portal-hyprland xdg-desktop-portal-gtk
     kde-cli-tools archlinux-xdg-menu imv zathura zathura-pdf-mupdf copyq
-    brightnessctl playerctl linux linux-headers
+    brightnessctl playerctl
     bluez bluez-utils pipewire pipewire-pulse wireplumber libpulse
     gtk3 gtk-layer-shell python-gobject power-profiles-daemon libnotify
 )
 PKG_AUR_EXTENDED=(hyprshot libinput-gestures)
-
-CONFIG_FOLDERS=(hypr hyprland kitty waybar gtk-3.0 Kvantum autostart dconf yay rofi)
-CONFIG_FILES=(arkrc dolphinrc kdeglobals kiorc ktrashrc QtProject.conf trashrc mimeapps.list libinput-gestures.conf)
-BIN_FILES=(lock-screen)
 
 # ── helpers ──────────────────────────────────────────────────────────────────
 
@@ -42,19 +40,6 @@ install_packages() {
     fi
 }
 
-safe_link() {
-    local src=$1 dest=$2
-    mkdir -p "$(dirname "$dest")"
-    if [[ -d "$src" ]]; then
-        rm -rf "$dest"
-        ln -sfn "$src" "$dest"
-    else
-        rm -f "$dest"
-        ln -sf "$src" "$dest"
-    fi
-    log "$dest → $src"
-}
-
 # ── 1. choose install type ───────────────────────────────────────────────────
 
 echo "Select install type:"
@@ -74,6 +59,12 @@ info "Updating system..."
 sudo pacman -Syu --noconfirm
 install_packages "${PACKAGES[@]}"
 sudo systemctl enable NetworkManager.service
+
+# Configure an existing GRUB installation in both profiles. Do not replace a
+# different bootloader or install an EFI boot entry implicitly.
+info "Configuring boot appearance..."
+sudo "$DOTFILES_DIR/grub/thinkgrub/install.sh"
+sudo "$DOTFILES_DIR/plymouth/install.sh"
 
 # ── 3. extended setup ───────────────────────────────────────────────────────
 
@@ -99,16 +90,14 @@ if [[ "$install_type" == "2" ]]; then
     sudo usermod -aG libvirt "$USER"
     sudo usermod -aG input "$USER"
 
-    info "Replacing SDDM with greetd..."
-    if pacman -Qq sddm &>/dev/null; then
-        sudo systemctl disable sddm.service 2>/dev/null || true
-        sudo pacman -Rns --noconfirm sddm
+    info "Configuring greetd..."
+    current_dm=$(readlink -f /etc/systemd/system/display-manager.service 2>/dev/null || true)
+    if [[ -n "$current_dm" && "$(basename "$current_dm")" != greetd.service ]]; then
+        sudo systemctl disable "$(basename "$current_dm")"
     fi
 
     if [[ -f "$DOTFILES_DIR/etc/greetd/config.toml" ]]; then
-        sudo mkdir -p /etc/greetd
-        sudo cp "$DOTFILES_DIR/etc/greetd/config.toml" /etc/greetd/config.toml
-        sudo chown -R greeter:greeter /etc/greetd
+        sudo install -Dm644 "$DOTFILES_DIR/etc/greetd/config.toml" /etc/greetd/config.toml
     fi
     sudo systemctl enable greetd.service
 
@@ -140,18 +129,11 @@ fi
 info "Linking dotfiles..."
 mkdir -p "$CONFIG_DIR"
 
-for folder in "${CONFIG_FOLDERS[@]}"; do
-    [[ -d "$DOTFILES_DIR/.config/$folder" ]] && safe_link "$DOTFILES_DIR/.config/$folder" "$CONFIG_DIR/$folder"
-done
-
-for file in "${CONFIG_FILES[@]}"; do
-    [[ -f "$DOTFILES_DIR/.config/$file" ]] && safe_link "$DOTFILES_DIR/.config/$file" "$CONFIG_DIR/$file"
-done
-
-mkdir -p "$HOME/.local/bin"
-for file in "${BIN_FILES[@]}"; do
-    [[ -f "$DOTFILES_DIR/bin/$file" ]] && safe_link "$DOTFILES_DIR/bin/$file" "$HOME/.local/bin/$file"
-done
+if [[ "$install_type" == 2 ]]; then
+    link_configs
+fi
+mkdir -p "${XDG_STATE_HOME:-$HOME/.local/state}/dotfiles"
+printf '%s\n' "$install_type" > "${XDG_STATE_HOME:-$HOME/.local/state}/dotfiles/profile"
 
 # ── 6. zsh config ───────────────────────────────────────────────────────────
 
@@ -179,6 +161,4 @@ fi
 # ── 8. reboot ────────────────────────────────────────────────────────────────
 
 echo
-echo "Done. Rebooting in 5 seconds..."
-sleep 5
-sudo reboot
+echo "Done. Reboot when ready to apply boot and login changes."

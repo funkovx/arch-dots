@@ -1,44 +1,31 @@
 #!/bin/bash
 set -e
 
-DOTFILES_DIR="$HOME/.dotfiles"
+DOTFILES_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 CONFIG_DIR="$HOME/.config"
+source "$DOTFILES_DIR/lib/install-common.sh"
 
 log()  { echo "  $*"; }
 info() { echo; echo "▸ $*"; }
 
-safe_link() {
-    local src=$1 dest=$2
-    mkdir -p "$(dirname "$dest")"
-    if [[ -d "$src" ]]; then
-        rm -rf "$dest"
-        ln -sfn "$src" "$dest"
-    else
-        rm -f "$dest"
-        ln -sf "$src" "$dest"
-    fi
-    log "$dest → $src"
-}
-
 info "Pulling from GitHub..."
 cd "$DOTFILES_DIR"
-git pull origin main
+git pull --ff-only origin main
 
 info "Relinking configs..."
-find "$DOTFILES_DIR/.config" -maxdepth 1 -mindepth 1 -type d | while read -r dir; do
-    safe_link "$dir" "$CONFIG_DIR/$(basename "$dir")"
-done
-
-find "$DOTFILES_DIR/.config" -maxdepth 1 -type f | while read -r file; do
-    safe_link "$file" "$CONFIG_DIR/$(basename "$file")"
-done
+profile_file="${XDG_STATE_HOME:-$HOME/.local/state}/dotfiles/profile"
+profile=2
+[[ ! -r "$profile_file" ]] || profile=$(cat "$profile_file")
+[[ "$profile" == 1 ]] || link_configs
 
 if [[ -f "$DOTFILES_DIR/.zshrc" ]]; then
     safe_link "$DOTFILES_DIR/.zshrc" "$HOME/.zshrc"
 fi
 
 info "Reloading Hyprland..."
-hyprctl reload
+if command -v hyprctl >/dev/null && [[ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ]]; then
+    hyprctl reload config-only
+fi
 
 echo
 echo "Sync complete."

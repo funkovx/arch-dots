@@ -1,6 +1,7 @@
 [Desktop Entry]
 Name=Throne
 Exec=/usr/lib/throne/Throne -tray -appdata
+TryExec=/usr/bin/throne
 Terminal=false
 Categories=Network
 Type=Application

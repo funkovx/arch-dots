@@ -1,0 +1,71 @@
+# A quiet boot screen. Keep prompts available when an early-boot action needs input.
+Window.SetBackgroundTopColor(0, 0, 0);
+Window.SetBackgroundBottomColor(0, 0, 0);
+logo.original = Image("logo.png");
+logo.width = 0;
+logo.sprite = Sprite();
+prompt.sprite = Sprite();
+message.sprite = Sprite();
+
+fun refresh_callback()
+{
+    local.width = Math.Int(Window.GetWidth() / 4);
+    if (local.width != logo.width)
+    {
+        logo.width = local.width;
+        logo.image = logo.original.Scale(local.width,
+            Math.Int(local.width * logo.original.GetHeight() / logo.original.GetWidth()));
+        logo.sprite.SetImage(logo.image);
+    }
+    logo.sprite.SetX(Window.GetX() + (Window.GetWidth() - logo.image.GetWidth()) / 2);
+    logo.sprite.SetY(Window.GetY() + (Window.GetHeight() - logo.image.GetHeight()) / 2);
+}
+refresh_callback();
+Plymouth.SetRefreshFunction(refresh_callback);
+
+fun show_prompt(text)
+{
+    local.image = Image.Text(text, 1, 1, 1);
+    prompt.sprite.SetImage(local.image);
+    prompt.sprite.SetX(Window.GetX() + (Window.GetWidth() - local.image.GetWidth()) / 2);
+    prompt.sprite.SetY(Window.GetY() + Window.GetHeight() / 2 + logo.image.GetHeight());
+    prompt.sprite.SetOpacity(1);
+}
+
+fun display_password_callback(text, count)
+{
+    local.bullets = "";
+    for (local.i = 0; local.i < count; local.i++)
+        local.bullets += "*";
+    show_prompt(text + "\n" + local.bullets);
+}
+
+fun display_question_callback(text, entry)
+{
+    show_prompt(text + "\n" + entry);
+}
+
+fun display_normal_callback()
+{
+    prompt.sprite.SetOpacity(0);
+}
+
+fun display_message_callback(text)
+{
+    local.image = Image.Text(text, 0.7, 0.7, 0.7);
+    message.sprite.SetImage(local.image);
+    message.sprite.SetX(Window.GetX() + (Window.GetWidth() - local.image.GetWidth()) / 2);
+    message.sprite.SetY(Window.GetY() + Window.GetHeight() * 0.8);
+    message.sprite.SetOpacity(1);
+}
+
+fun hide_message_callback(text)
+{
+    message.sprite.SetOpacity(0);
+}
+
+Plymouth.SetDisplayPasswordFunction(display_password_callback);
+Plymouth.SetDisplayQuestionFunction(display_question_callback);
+Plymouth.SetDisplayNormalFunction(display_normal_callback);
+Plymouth.SetDisplayMessageFunction(display_message_callback);
+Plymouth.SetHideMessageFunction(hide_message_callback);

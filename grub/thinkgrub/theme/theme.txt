@@ -1,0 +1,76 @@
+# ThinkGRUB ASUS variant: centered monochrome menu with larger text.
+desktop-color: "#000000"
+terminal-box: "terminal_box_*.png"
+terminal-font: "DejaVu Sans Regular 20"
+
++ label {
+    left = 17%
+    top = 50%-151
+    width = 66%
+    height = 30
+    text = "boot menu"
+    font = "DejaVu Sans Regular 20"
+    color = "#aaaaaa"
+    align = "left"
+}
+
++ boot_menu {
+    left = 16%
+    top = 50%-106
+    width = 68%
+    height = 236
+    item_font = "DejaVu Sans Regular 28"
+    item_color = "#ffffff"
+    selected_item_font = "DejaVu Sans Regular 28"
+    selected_item_color = "#000000"
+    icon_width = 0
+    item_icon_space = 0
+    item_height = 46
+    item_padding = 10
+    item_spacing = 4
+    item_pixmap_style = "item_*.png"
+    selected_item_pixmap_style = "sel_*.png"
+    scrollbar = false
+}
+
++ label {
+    left = 17%
+    top = 50%+128
+    width = 66%
+    height = 30
+    text = "UP/DN select   ENTER boot   E edit"
+    font = "DejaVu Sans Regular 20"
+    color = "#aaaaaa"
+    align = "left"
+}
+
++ label {
+    id = "__timeout__"
+    left = 17%
+    top = 50%+175
+    width = 66%
+    height = 30
+    text = "boot in %ds"
+    font = "DejaVu Sans Regular 20"
+    color = "#aaaaaa"
+    align = "center"
+}
+
+# LOGO_BEGIN
++ image {
+    left = 50%-160
+    top = 50%-310
+    width = 320
+    height = 107
+    file = "logo.png"
+}
+# LOGO_END
+
+# Keep the opaque panel last: GRUB paints canvas components in reverse.
++ image {
+    left = 15%
+    top = 50%-170
+    width = 70%
+    height = 340
+    file = "panel.png"
+}

@@ -1,0 +1,8 @@
+[Plymouth Theme]
+Name=Arch Minimal
+Description=Static Arch Linux logo on a black background
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/arch-minimal
+ScriptFile=/usr/share/plymouth/themes/arch-minimal/arch-minimal.script

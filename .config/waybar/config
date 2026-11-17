@@ -6,7 +6,7 @@
     "modules-left": ["ext/workspaces", "hyprland/window"],
     "modules-center": ["idle_inhibitor", "clock"],
     "modules-right": [
-        "temperature",
+        "custom/temperature",
         "pulseaudio",
         "hyprland/language",
         "network",
@@ -50,13 +50,9 @@
         }
     },
 
-    "temperature": {
-        "hwmon-path-abs": "/sys/devices/platform/coretemp.0/hwmon",
-        "input-filename": "temp1_input",
-        "format": "{temperatureC}°C",
-        "critical-threshold": 80,
-        "format-critical": "{temperatureC}°C",
-        "tooltip-format": "CPU: {temperatureC}°C",
+    "custom/temperature": {
+        "exec": "~/.config/waybar/scripts/cpu-temperature.py",
+        "return-type": "json",
         "interval": 5,
         "tooltip": true
     },

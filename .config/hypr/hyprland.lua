@@ -7,10 +7,10 @@
 ------------------
 
 hl.monitor({
-    output   = "eDP-1",
-    mode     = "2880x1620",
-    position = "0x0",
-    scale    = 2,
+    output   = "",
+    mode     = "preferred",
+    position = "auto",
+    scale    = "auto",
 })
 
 ---------------------
@@ -30,7 +30,7 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("waybar")
     -- Do not create a second idle daemon after a config reload/restart.
     hl.exec_cmd("pgrep -x hypridle >/dev/null || hypridle")
-    hl.exec_cmd("throne", { workspace = "9 silent" })
+    hl.exec_cmd("command -v throne >/dev/null 2>&1 && throne", { workspace = "9 silent" })
     hl.exec_cmd("copyq --start-server")
 end)
 
@@ -92,17 +92,15 @@ hl.config({
     },
 })
 
--- кривые анимаций
-hl.curve("gruvbox",   { type = "bezier", points = { {0.05, 0.9}, {0.1, 1.05} } })
-hl.curve("linear",    { type = "bezier", points = { {0, 0}, {1, 1} } })
-hl.curve("overshoot", { type = "bezier", points = { {0.13, 0.99}, {0.29, 1.1} } })
+-- Smooth acceleration and braking without overshoot.
+hl.curve("smooth", { type = "bezier", points = { {0.42, 0}, {0.58, 1} } })
 
-hl.animation({ leaf = "windows",         enabled = true, speed = 2.7, bezier = "gruvbox", style = "popin 90%" })
-hl.animation({ leaf = "windowsOut",      enabled = true, speed = 2,   bezier = "default", style = "popin 90%" })
-hl.animation({ leaf = "border",          enabled = true, speed = 6.7, bezier = "default" })
-hl.animation({ leaf = "fade",            enabled = true, speed = 2.7, bezier = "default" })
-hl.animation({ leaf = "workspaces",      enabled = true, speed = 2.7, bezier = "gruvbox", style = "slide 50%" })
-hl.animation({ leaf = "specialWorkspace",enabled = true, speed = 2.7, bezier = "gruvbox", style = "slidevert 50%" })
+hl.animation({ leaf = "windows",         enabled = true, speed = 1.8, bezier = "smooth", style = "popin 100%" })
+hl.animation({ leaf = "windowsOut",      enabled = true, speed = 1.8, bezier = "smooth", style = "popin 100%" })
+hl.animation({ leaf = "border",          enabled = true, speed = 6.7, bezier = "smooth" })
+hl.animation({ leaf = "fade",            enabled = true, speed = 1.8, bezier = "smooth" })
+hl.animation({ leaf = "workspaces",      enabled = true, speed = 1.8, bezier = "smooth", style = "fade" })
+hl.animation({ leaf = "specialWorkspace",enabled = true, speed = 1.8, bezier = "smooth", style = "fade" })
 
 hl.config({
     dwindle = {
@@ -148,11 +146,13 @@ hl.gesture({
     action = "workspace",
 })
 
--- пример конфига под конкретное устройство (перенесено из старого конфига как есть)
-hl.device({
-    name = "epic-mouse-v1",
-    sensitivity = -0.5,
-})
+-- Optional machine-specific overrides; this untracked file stays local.
+local local_config = os.getenv("HOME") .. "/.config/hypr/local.lua"
+local local_file = io.open(local_config, "r")
+if local_file then
+    local_file:close()
+    dofile(local_config)
+end
 
 ---------------------
 ---- KEYBINDINGS ----
@@ -252,7 +252,7 @@ hl.window_rule({
     match = { class = "imv" },
     float = true,
     center = true,
-    size = "1200 720",
+    size = "80% 80%",
 })
 
 -- nmtui (сетевой менеджер)

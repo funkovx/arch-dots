@@ -6,6 +6,7 @@
 
 # Backup and temp files
 *.bak
+*.bak-*
 *.tmp
 *.swp
 *~
@@ -19,3 +20,8 @@
 
 # Screenshots that may show private data
 screenshots-private/
+
+# Per-machine display/input overrides and application history
+.config/hypr/local.lua
+.config/QtProject.conf
+.config/ktrashrc

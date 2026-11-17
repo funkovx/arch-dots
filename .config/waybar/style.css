@@ -58,7 +58,7 @@ window#waybar {
 
 #clock,
 #idle_inhibitor,
-#temperature,
+#custom-temperature,
 #pulseaudio,
 #network,
 #backlight,
