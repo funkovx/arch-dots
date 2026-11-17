@@ -28,12 +28,10 @@ local menu         = "rofi -show drun"
 hl.on("hyprland.start", function()
     hl.exec_cmd("systemctl --user start hyprpolkitagent")
     hl.exec_cmd("waybar")
-    -- hl.exec_cmd("sunshine")
-    hl.exec_cmd("hypridle")
-    hl.exec_cmd("hyprpaper")
+    -- Do not create a second idle daemon after a config reload/restart.
+    hl.exec_cmd("pgrep -x hypridle >/dev/null || hypridle")
     hl.exec_cmd("throne", { workspace = "9 silent" })
     hl.exec_cmd("copyq --start-server")
-    hl.exec_cmd("libinput-gestures-setup start")
 end)
 
 -------------------------------
@@ -99,12 +97,12 @@ hl.curve("gruvbox",   { type = "bezier", points = { {0.05, 0.9}, {0.1, 1.05} } }
 hl.curve("linear",    { type = "bezier", points = { {0, 0}, {1, 1} } })
 hl.curve("overshoot", { type = "bezier", points = { {0.13, 0.99}, {0.29, 1.1} } })
 
-hl.animation({ leaf = "windows",         enabled = true, speed = 4,  bezier = "gruvbox", style = "slide" })
-hl.animation({ leaf = "windowsOut",      enabled = true, speed = 3,  bezier = "default", style = "popin 80%" })
-hl.animation({ leaf = "border",          enabled = true, speed = 10, bezier = "default" })
-hl.animation({ leaf = "fade",            enabled = true, speed = 4,  bezier = "default" })
-hl.animation({ leaf = "workspaces",      enabled = true, speed = 4,  bezier = "gruvbox", style = "slide" })
-hl.animation({ leaf = "specialWorkspace",enabled = true, speed = 4,  bezier = "gruvbox", style = "slidevert" })
+hl.animation({ leaf = "windows",         enabled = true, speed = 2.7, bezier = "gruvbox", style = "popin 90%" })
+hl.animation({ leaf = "windowsOut",      enabled = true, speed = 2,   bezier = "default", style = "popin 90%" })
+hl.animation({ leaf = "border",          enabled = true, speed = 6.7, bezier = "default" })
+hl.animation({ leaf = "fade",            enabled = true, speed = 2.7, bezier = "default" })
+hl.animation({ leaf = "workspaces",      enabled = true, speed = 2.7, bezier = "gruvbox", style = "slide 50%" })
+hl.animation({ leaf = "specialWorkspace",enabled = true, speed = 2.7, bezier = "gruvbox", style = "slidevert 50%" })
 
 hl.config({
     dwindle = {
@@ -117,7 +115,6 @@ hl.config({
     },
 
     misc = {
-        force_default_wallpaper = 0,
         disable_hyprland_logo = true,
     },
 })
@@ -142,6 +139,13 @@ hl.config({
             disable_while_typing = true,
         },
     },
+})
+
+-- Three-finger horizontal swipe switches workspaces.
+hl.gesture({
+    fingers = 3,
+    direction = "horizontal",
+    action = "workspace",
 })
 
 -- пример конфига под конкретное устройство (перенесено из старого конфига как есть)

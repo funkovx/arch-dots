@@ -8,7 +8,7 @@ My Arch Linux setup: Hyprland on Wayland with a dark Gruvbox-inspired look, plus
 
 | Area | Tools |
 | --- | --- |
-| Compositor | Hyprland (`hyprland.conf` and the newer Lua config for 0.55+), hypridle, hyprlock, hyprpaper |
+| Compositor | Hyprland (`.config/hypr/hyprland.lua` for 0.55+), hypridle, hyprlock |
 | Bar and launcher | Waybar with a custom Claude usage module, Rofi (Gruvbox Dark theme) |
 | Terminal and shell | kitty, Zsh, Oh My Zsh, Powerlevel10k |
 | Login | greetd + tuigreet, starts Hyprland directly |
@@ -65,5 +65,9 @@ Pulls the latest commit, re-links all configs and reloads Hyprland.
 
 ## Notes
 
+- The active compositor config is `~/.config/hypr/hyprland.lua`. Both `hyprland.conf` files are legacy references and are not loaded by the current session. Hypridle and hyprlock still use their own `.conf` formats; they do not need conversion to Lua.
+- Waybar 0.15 uses `ext/workspaces` to switch workspaces with Lua-based Hyprland.
+- Three-finger workspace swipes are configured natively in Hyprland. The optional `libinput-gestures.conf` uses Lua dispatchers; do not enable its three-finger bindings alongside the native gesture, or each swipe can switch twice.
+- The extended installer includes `hyprpolkitagent` and `playerctl`. Throne is an optional autostart app and must be installed separately.
 - Built for a 2880×1620 laptop panel at 2× scaling. Change the `monitor` line in the Hyprland config for other displays.
 - Private app data (VPN client config, KDE session files, secrets) is excluded in `.gitignore`.

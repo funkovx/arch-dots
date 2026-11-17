@@ -6,19 +6,20 @@ CONFIG_DIR="$HOME/.config"
 
 PKG_MINIMAL=(git curl htop zsh networkmanager base-devel fastfetch)
 PKG_EXTENDED=(
-    firefox dolphin hyprland waybar kitty hyprlock
+    firefox dolphin hyprland waybar kitty hyprlock hyprpolkitagent
     greetd greetd-tuigreet python rofi ttf-jetbrains-mono-nerd
     code telegram-desktop qemu-full virt-manager libvirt dnsmasq
     kvantum qt5-wayland qt6-wayland hypridle xdg-utils
     kde-cli-tools archlinux-xdg-menu imv zathura zathura-pdf-mupdf copyq
-    brightnessctl
+    brightnessctl playerctl linux linux-headers
     bluez bluez-utils pipewire pipewire-pulse wireplumber libpulse
     gtk3 gtk-layer-shell python-gobject power-profiles-daemon libnotify
 )
 PKG_AUR_EXTENDED=(hyprshot libinput-gestures)
 
-CONFIG_FOLDERS=(hypr hyprland kitty waybar gtk-3.0 Kvantum autostart yay rofi)
+CONFIG_FOLDERS=(hypr hyprland kitty waybar gtk-3.0 Kvantum autostart dconf yay rofi)
 CONFIG_FILES=(arkrc dolphinrc kdeglobals kiorc ktrashrc QtProject.conf trashrc mimeapps.list libinput-gestures.conf)
+BIN_FILES=(lock-screen)
 
 # ── helpers ──────────────────────────────────────────────────────────────────
 
@@ -145,6 +146,11 @@ done
 
 for file in "${CONFIG_FILES[@]}"; do
     [[ -f "$DOTFILES_DIR/.config/$file" ]] && safe_link "$DOTFILES_DIR/.config/$file" "$CONFIG_DIR/$file"
+done
+
+mkdir -p "$HOME/.local/bin"
+for file in "${BIN_FILES[@]}"; do
+    [[ -f "$DOTFILES_DIR/bin/$file" ]] && safe_link "$DOTFILES_DIR/bin/$file" "$HOME/.local/bin/$file"
 done
 
 # ── 6. zsh config ───────────────────────────────────────────────────────────

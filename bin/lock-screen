@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Keep the display on while the lock screen is active.  Turning DPMS off here
+# prevents the keyboard/touchpad from reliably waking the panel again.
+exec hyprlock
